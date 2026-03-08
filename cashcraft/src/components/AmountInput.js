@@ -7,9 +7,11 @@ import Animated, {
   withTiming,
   Easing,
 } from 'react-native-reanimated';
-import { Colors, Spacing } from '../constants/theme';
+import { Spacing } from '../constants/theme';
+import { useColors } from '../hooks/useColors';
 
 const AmountInput = ({ value, onChange, placeholder = '0.00', autoFocus = true }) => {
+  const Colors = useColors();
   const inputRef = useRef(null);
   const cursorOpacity = useSharedValue(1);
 
@@ -29,6 +31,48 @@ const AmountInput = ({ value, onChange, placeholder = '0.00', autoFocus = true }
   }));
 
   const displayValue = value ? value : '';
+
+  const styles = StyleSheet.create({
+    container: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingVertical: Spacing.xxl,
+    },
+    dollar: {
+      fontSize: 32,
+      fontWeight: '300',
+      color: Colors.accent,
+      marginRight: 4,
+      marginTop: 6,
+    },
+    inputRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    amount: {
+      fontSize: 56,
+      fontWeight: '700',
+      color: Colors.textPrimary,
+      letterSpacing: -2,
+    },
+    placeholder: {
+      color: Colors.textTertiary,
+    },
+    cursor: {
+      width: 3,
+      height: 52,
+      backgroundColor: Colors.accent,
+      borderRadius: 2,
+      marginLeft: 2,
+    },
+    hiddenInput: {
+      position: 'absolute',
+      opacity: 0,
+      width: 1,
+      height: 1,
+    },
+  });
 
   return (
     <Pressable style={styles.container} onPress={() => inputRef.current?.focus()}>
@@ -58,47 +102,5 @@ const AmountInput = ({ value, onChange, placeholder = '0.00', autoFocus = true }
     </Pressable>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: Spacing.xxl,
-  },
-  dollar: {
-    fontSize: 32,
-    fontWeight: '300',
-    color: Colors.accent,
-    marginRight: 4,
-    marginTop: 6,
-  },
-  inputRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  amount: {
-    fontSize: 56,
-    fontWeight: '700',
-    color: Colors.textPrimary,
-    letterSpacing: -2,
-  },
-  placeholder: {
-    color: Colors.textTertiary,
-  },
-  cursor: {
-    width: 3,
-    height: 52,
-    backgroundColor: Colors.accent,
-    borderRadius: 2,
-    marginLeft: 2,
-  },
-  hiddenInput: {
-    position: 'absolute',
-    opacity: 0,
-    width: 1,
-    height: 1,
-  },
-});
 
 export default AmountInput;

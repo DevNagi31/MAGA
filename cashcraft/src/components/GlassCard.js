@@ -5,7 +5,8 @@ import Animated, {
   useAnimatedStyle,
   withSpring,
 } from 'react-native-reanimated';
-import { Colors, Radius, Spacing } from '../constants/theme';
+import { Radius, Spacing } from '../constants/theme';
+import { useColors } from '../hooks/useColors';
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
@@ -14,33 +15,41 @@ const GlassCard = ({
   style,
   onPress,
   padding = Spacing.base,
-  borderColor = Colors.glassBorder,
-  backgroundColor = Colors.glass,
+  borderColor,
+  backgroundColor,
   elevated = false,
   disabled = false,
 }) => {
+  const Colors = useColors();
   const scale = useSharedValue(1);
+  const opacity = useSharedValue(1);
+
+  const resolvedBorderColor = borderColor !== undefined ? borderColor : Colors.glassBorder;
+  const resolvedBackgroundColor = backgroundColor !== undefined ? backgroundColor : Colors.glass;
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
+    opacity: opacity.value,
   }));
 
   const handlePressIn = () => {
     if (onPress && !disabled) {
       scale.value = withSpring(0.97, { damping: 15, stiffness: 200 });
+      opacity.value = withSpring(0.8, { damping: 15, stiffness: 200 });
     }
   };
 
   const handlePressOut = () => {
     scale.value = withSpring(1, { damping: 15, stiffness: 200 });
+    opacity.value = withSpring(1, { damping: 15, stiffness: 200 });
   };
 
   const cardStyle = [
     styles.card,
     {
       padding,
-      backgroundColor: elevated ? Colors.cardElevated : backgroundColor,
-      borderColor,
+      backgroundColor: elevated ? Colors.cardElevated : resolvedBackgroundColor,
+      borderColor: resolvedBorderColor,
     },
     style,
   ];

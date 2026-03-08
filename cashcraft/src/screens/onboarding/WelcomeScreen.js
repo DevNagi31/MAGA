@@ -11,12 +11,14 @@ import Animated, {
 import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Colors, Spacing, Radius } from '../../constants/theme';
+import { Spacing, Radius } from '../../constants/theme';
 import PremiumButton from '../../components/PremiumButton';
+import { useColors } from '../../hooks/useColors';
 
 const { width, height } = Dimensions.get('window');
 
 export default function WelcomeScreen({ navigation }) {
+  const Colors = useColors();
   const insets = useSafeAreaInsets();
   const logoScale = useSharedValue(0.6);
   const logoOpacity = useSharedValue(0);
@@ -48,6 +50,74 @@ export default function WelcomeScreen({ navigation }) {
     opacity: buttonOpacity.value,
     transform: [{ translateY: buttonY.value }],
   }));
+
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: Colors.bg,
+      paddingHorizontal: Spacing.xl,
+    },
+    glow: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      height: height * 0.4,
+    },
+    content: {
+      flex: 1,
+      justifyContent: 'center',
+      gap: Spacing.xxl,
+    },
+    logoSection: {
+      alignItems: 'center',
+      gap: Spacing.base,
+    },
+    iconRing: {
+      width: 90,
+      height: 90,
+      borderRadius: 26,
+      overflow: 'hidden',
+      shadowColor: Colors.accent,
+      shadowOffset: { width: 0, height: 8 },
+      shadowOpacity: 0.4,
+      shadowRadius: 20,
+      elevation: 12,
+    },
+    iconGradient: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    appName: {
+      fontSize: 40,
+      fontWeight: '800',
+      color: Colors.textPrimary,
+      letterSpacing: -1.5,
+    },
+    tagline: {
+      fontSize: 42,
+      fontWeight: '800',
+      color: Colors.textPrimary,
+      letterSpacing: -1.5,
+      lineHeight: 50,
+    },
+    subtitle: {
+      fontSize: 16,
+      color: Colors.textSecondary,
+      marginTop: Spacing.base,
+      lineHeight: 24,
+    },
+    buttonSection: {
+      paddingBottom: Spacing.xl,
+      gap: Spacing.md,
+      alignItems: 'center',
+    },
+    footnote: {
+      fontSize: 13,
+      color: Colors.textTertiary,
+    },
+  });
 
   return (
     <View style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
@@ -88,71 +158,3 @@ export default function WelcomeScreen({ navigation }) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.bg,
-    paddingHorizontal: Spacing.xl,
-  },
-  glow: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: height * 0.4,
-  },
-  content: {
-    flex: 1,
-    justifyContent: 'center',
-    gap: Spacing.xxl,
-  },
-  logoSection: {
-    alignItems: 'center',
-    gap: Spacing.base,
-  },
-  iconRing: {
-    width: 90,
-    height: 90,
-    borderRadius: 26,
-    overflow: 'hidden',
-    shadowColor: Colors.accent,
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.4,
-    shadowRadius: 20,
-    elevation: 12,
-  },
-  iconGradient: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  appName: {
-    fontSize: 40,
-    fontWeight: '800',
-    color: Colors.textPrimary,
-    letterSpacing: -1.5,
-  },
-  tagline: {
-    fontSize: 42,
-    fontWeight: '800',
-    color: Colors.textPrimary,
-    letterSpacing: -1.5,
-    lineHeight: 50,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: Colors.textSecondary,
-    marginTop: Spacing.base,
-    lineHeight: 24,
-  },
-  buttonSection: {
-    paddingBottom: Spacing.xl,
-    gap: Spacing.md,
-    alignItems: 'center',
-  },
-  footnote: {
-    fontSize: 13,
-    color: Colors.textTertiary,
-  },
-});

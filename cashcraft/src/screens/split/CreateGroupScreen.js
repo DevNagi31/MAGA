@@ -12,11 +12,12 @@ import {
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { Feather } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Colors, Spacing, Radius } from '../../constants/theme';
+import { Spacing, Radius } from '../../constants/theme';
 import { useGroupStore } from '../../context/store';
 import MemberAvatar from '../../components/MemberAvatar';
 import PremiumButton from '../../components/PremiumButton';
 import { useHaptic } from '../../hooks/useHaptic';
+import { useColors } from '../../hooks/useColors';
 
 const MEMBER_COLORS = [
   '#34D399', '#60A5FA', '#F97316', '#A78BFA',
@@ -24,15 +25,16 @@ const MEMBER_COLORS = [
 ];
 
 export default function CreateGroupScreen({ navigation }) {
+  const Colors = useColors();
   const insets = useSafeAreaInsets();
   const addGroup = useGroupStore((s) => s.addGroup);
   const { success, light } = useHaptic();
 
   const [groupName, setGroupName] = useState('');
-  const [members, setMembers] = useState([
-    { id: `m-${Date.now()}`, name: '', color: MEMBER_COLORS[0] },
-  ]);
+  const [members, setMembers] = useState([]);
   const [newMemberName, setNewMemberName] = useState('');
+  const [newMemberZelle, setNewMemberZelle] = useState('');
+  const [showZelleInput, setShowZelleInput] = useState(false);
 
   const addMember = () => {
     if (!newMemberName.trim()) return;
@@ -42,10 +44,13 @@ export default function CreateGroupScreen({ navigation }) {
       {
         id: `m-${Date.now()}`,
         name: newMemberName.trim(),
+        zelleId: newMemberZelle.trim(),
         color: MEMBER_COLORS[prev.length % MEMBER_COLORS.length],
       },
     ]);
     setNewMemberName('');
+    setNewMemberZelle('');
+    setShowZelleInput(false);
   };
 
   const removeMember = (id) => {
@@ -59,6 +64,118 @@ export default function CreateGroupScreen({ navigation }) {
     addGroup({ name: groupName.trim(), members: validMembers });
     navigation.goBack();
   };
+
+  const styles = StyleSheet.create({
+    content: {
+      padding: Spacing.base,
+      gap: Spacing.xl,
+    },
+    label: {
+      fontSize: 12,
+      fontWeight: '600',
+      color: Colors.textTertiary,
+      letterSpacing: 0.5,
+      textTransform: 'uppercase',
+      marginBottom: Spacing.sm,
+    },
+    sublabel: {
+      fontSize: 13,
+      color: Colors.textTertiary,
+      marginBottom: Spacing.md,
+      marginTop: -Spacing.xs,
+    },
+    input: {
+      backgroundColor: Colors.card,
+      borderRadius: Radius.md,
+      borderWidth: 1,
+      borderColor: Colors.border,
+      paddingHorizontal: Spacing.base,
+      paddingVertical: Spacing.md,
+      fontSize: 16,
+      color: Colors.textPrimary,
+    },
+    memberRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: Spacing.md,
+      paddingVertical: Spacing.sm,
+      borderBottomWidth: 1,
+      borderBottomColor: Colors.border,
+    },
+    memberInfo: {
+      flex: 1,
+      gap: 3,
+    },
+    memberName: {
+      fontSize: 15,
+      fontWeight: '500',
+      color: Colors.textPrimary,
+    },
+    zelleTag: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+    },
+    zelleTagText: {
+      fontSize: 12,
+      color: Colors.accent,
+      fontWeight: '500',
+    },
+    noZelle: {
+      fontSize: 12,
+      color: Colors.textTertiary,
+    },
+    removeBtn: {
+      padding: Spacing.xs,
+    },
+    addMemberWrap: {
+      marginTop: Spacing.md,
+      gap: Spacing.sm,
+    },
+    addMemberRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: Spacing.sm,
+    },
+    memberInput: {
+      flex: 1,
+      backgroundColor: Colors.card,
+      borderRadius: Radius.md,
+      borderWidth: 1,
+      borderColor: Colors.border,
+      paddingHorizontal: Spacing.base,
+      paddingVertical: Spacing.md,
+      fontSize: 15,
+      color: Colors.textPrimary,
+    },
+    zelleInput: {
+      flex: undefined,
+    },
+    addBtn: {
+      width: 44,
+      height: 44,
+      borderRadius: Radius.md,
+      backgroundColor: Colors.accentDim,
+      borderWidth: 1,
+      borderColor: `${Colors.accent}40`,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    addBtnDisabled: {
+      backgroundColor: Colors.card,
+      borderColor: Colors.border,
+    },
+    addZelleLink: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 5,
+      paddingVertical: Spacing.xs,
+    },
+    addZelleLinkText: {
+      fontSize: 13,
+      color: Colors.textTertiary,
+    },
+  });
 
   return (
     <KeyboardAvoidingView
@@ -88,34 +205,69 @@ export default function CreateGroupScreen({ navigation }) {
           <Text style={styles.label}>Members</Text>
           <Text style={styles.sublabel}>Add at least 2 people</Text>
 
-          {members.filter((m) => m.name.trim()).map((member, i) => (
+          {members.map((member) => (
             <View key={member.id} style={styles.memberRow}>
               <MemberAvatar name={member.name} color={member.color} size={38} />
-              <Text style={styles.memberName}>{member.name}</Text>
+              <View style={styles.memberInfo}>
+                <Text style={styles.memberName}>{member.name}</Text>
+                {member.zelleId ? (
+                  <View style={styles.zelleTag}>
+                    <Feather name="zap" size={10} color={Colors.accent} />
+                    <Text style={styles.zelleTagText}>{member.zelleId}</Text>
+                  </View>
+                ) : (
+                  <Text style={styles.noZelle}>No Zelle ID</Text>
+                )}
+              </View>
               <Pressable onPress={() => removeMember(member.id)} style={styles.removeBtn}>
                 <Feather name="x" size={16} color={Colors.textTertiary} />
               </Pressable>
             </View>
           ))}
 
-          <View style={styles.addMemberRow}>
-            <TextInput
-              style={styles.memberInput}
-              placeholder="Add member name..."
-              placeholderTextColor={Colors.textTertiary}
-              value={newMemberName}
-              onChangeText={setNewMemberName}
-              onSubmitEditing={addMember}
-              returnKeyType="done"
-              maxLength={30}
-            />
-            <Pressable
-              style={[styles.addBtn, !newMemberName.trim() && styles.addBtnDisabled]}
-              onPress={addMember}
-              disabled={!newMemberName.trim()}
-            >
-              <Feather name="plus" size={18} color={newMemberName.trim() ? Colors.accent : Colors.textTertiary} />
-            </Pressable>
+          {/* Add member inputs */}
+          <View style={styles.addMemberWrap}>
+            <View style={styles.addMemberRow}>
+              <TextInput
+                style={styles.memberInput}
+                placeholder="Name"
+                placeholderTextColor={Colors.textTertiary}
+                value={newMemberName}
+                onChangeText={setNewMemberName}
+                onSubmitEditing={showZelleInput ? undefined : addMember}
+                returnKeyType={showZelleInput ? 'next' : 'done'}
+                maxLength={30}
+              />
+              <Pressable
+                style={[styles.addBtn, !newMemberName.trim() && styles.addBtnDisabled]}
+                onPress={addMember}
+                disabled={!newMemberName.trim()}
+              >
+                <Feather name="plus" size={18} color={newMemberName.trim() ? Colors.accent : Colors.textTertiary} />
+              </Pressable>
+            </View>
+
+            {showZelleInput ? (
+              <TextInput
+                style={[styles.memberInput, styles.zelleInput]}
+                placeholder="Zelle phone or email (optional)"
+                placeholderTextColor={Colors.textTertiary}
+                value={newMemberZelle}
+                onChangeText={setNewMemberZelle}
+                onSubmitEditing={addMember}
+                returnKeyType="done"
+                keyboardType="email-address"
+                autoCapitalize="none"
+              />
+            ) : (
+              <Pressable
+                style={styles.addZelleLink}
+                onPress={() => setShowZelleInput(true)}
+              >
+                <Feather name="zap" size={12} color={Colors.textTertiary} />
+                <Text style={styles.addZelleLinkText}>Add Zelle ID (optional)</Text>
+              </Pressable>
+            )}
           </View>
         </Animated.View>
 
@@ -130,82 +282,3 @@ export default function CreateGroupScreen({ navigation }) {
     </KeyboardAvoidingView>
   );
 }
-
-const styles = StyleSheet.create({
-  content: {
-    padding: Spacing.base,
-    gap: Spacing.xl,
-  },
-  label: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: Colors.textTertiary,
-    letterSpacing: 0.5,
-    textTransform: 'uppercase',
-    marginBottom: Spacing.sm,
-  },
-  sublabel: {
-    fontSize: 13,
-    color: Colors.textTertiary,
-    marginBottom: Spacing.md,
-    marginTop: -Spacing.xs,
-  },
-  input: {
-    backgroundColor: Colors.card,
-    borderRadius: Radius.md,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    paddingHorizontal: Spacing.base,
-    paddingVertical: Spacing.md,
-    fontSize: 16,
-    color: Colors.textPrimary,
-  },
-  memberRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.md,
-    paddingVertical: Spacing.sm,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
-  },
-  memberName: {
-    flex: 1,
-    fontSize: 15,
-    fontWeight: '500',
-    color: Colors.textPrimary,
-  },
-  removeBtn: {
-    padding: Spacing.xs,
-  },
-  addMemberRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.sm,
-    marginTop: Spacing.md,
-  },
-  memberInput: {
-    flex: 1,
-    backgroundColor: Colors.card,
-    borderRadius: Radius.md,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    paddingHorizontal: Spacing.base,
-    paddingVertical: Spacing.md,
-    fontSize: 15,
-    color: Colors.textPrimary,
-  },
-  addBtn: {
-    width: 44,
-    height: 44,
-    borderRadius: Radius.md,
-    backgroundColor: Colors.accentDim,
-    borderWidth: 1,
-    borderColor: `${Colors.accent}40`,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  addBtnDisabled: {
-    backgroundColor: Colors.card,
-    borderColor: Colors.border,
-  },
-});

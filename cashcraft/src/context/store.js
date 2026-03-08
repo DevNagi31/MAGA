@@ -31,14 +31,14 @@ const SEED_EXPENSES = [
 ];
 
 const SEED_MEMBERS_ALPHA = [
-  { id: 'm1', name: 'Alex', color: '#34D399' },
-  { id: 'm2', name: 'Jordan', color: '#60A5FA' },
-  { id: 'm3', name: 'Sam', color: '#F97316' },
+  { id: 'm1', name: 'Alex', color: '#34D399', zelleId: 'alex@gmail.com' },
+  { id: 'm2', name: 'Jordan', color: '#60A5FA', zelleId: '+1 (646) 555-0182' },
+  { id: 'm3', name: 'Sam', color: '#F97316', zelleId: '+1 (917) 555-0134' },
 ];
 
 const SEED_MEMBERS_BETA = [
-  { id: 'm4', name: 'Me', color: '#34D399' },
-  { id: 'm5', name: 'Riley', color: '#A78BFA' },
+  { id: 'm4', name: 'Me', color: '#34D399', zelleId: 'demo@cashcraft.app' },
+  { id: 'm5', name: 'Riley', color: '#A78BFA', zelleId: 'riley@icloud.com' },
 ];
 
 const SEED_GROUPS = [
@@ -117,6 +117,8 @@ export const useAppStore = create(
     (set) => ({
       isOnboarded: false,
       setOnboarded: (value) => set({ isOnboarded: value }),
+      themeMode: 'dark',
+      setThemeMode: (mode) => set({ themeMode: mode }),
     }),
     {
       name: 'cashcraft-app',

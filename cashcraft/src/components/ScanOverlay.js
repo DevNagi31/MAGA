@@ -8,13 +8,14 @@ import Animated, {
   Easing,
 } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Colors } from '../constants/theme';
+import { useColors } from '../hooks/useColors';
 
 const { width } = Dimensions.get('window');
 const FRAME_SIZE = width * 0.78;
 const CORNER = 24;
 
 const ScanOverlay = ({ isScanning = false }) => {
+  const Colors = useColors();
   const scanY = useSharedValue(0);
 
   useEffect(() => {
@@ -42,10 +43,10 @@ const ScanOverlay = ({ isScanning = false }) => {
         {/* Scan frame */}
         <View style={styles.frame}>
           {/* Corners */}
-          <View style={[styles.corner, styles.topLeft]} />
-          <View style={[styles.corner, styles.topRight]} />
-          <View style={[styles.corner, styles.bottomLeft]} />
-          <View style={[styles.corner, styles.bottomRight]} />
+          <View style={[styles.corner, styles.topLeft, { borderColor: Colors.accent }]} />
+          <View style={[styles.corner, styles.topRight, { borderColor: Colors.accent }]} />
+          <View style={[styles.corner, styles.bottomLeft, { borderColor: Colors.accent }]} />
+          <View style={[styles.corner, styles.bottomRight, { borderColor: Colors.accent }]} />
 
           {/* Scan line */}
           {isScanning && (
@@ -70,7 +71,11 @@ const MASK_COLOR = 'rgba(5, 5, 5, 0.75)';
 
 const styles = StyleSheet.create({
   overlay: {
-    ...StyleSheet.absoluteFillObject,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     zIndex: 10,
   },
   maskTop: {
@@ -101,7 +106,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: CORNER,
     height: CORNER,
-    borderColor: Colors.accent,
   },
   topLeft: {
     top: 0,

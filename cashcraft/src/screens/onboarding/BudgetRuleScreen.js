@@ -4,10 +4,12 @@ import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { G, Path, Circle } from 'react-native-svg';
 import { Feather } from '@expo/vector-icons';
-import { Colors, Spacing, Radius, BUDGET_RULES } from '../../constants/theme';
+import { Spacing, Radius, BUDGET_RULES } from '../../constants/theme';
 import { useBudgetStore } from '../../context/store';
 import PremiumButton from '../../components/PremiumButton';
+import OnboardingDots from '../../components/OnboardingDots';
 import { useHaptic } from '../../hooks/useHaptic';
+import { useColors } from '../../hooks/useColors';
 
 const DONUT_SIZE = 160;
 const STROKE = 28;
@@ -56,6 +58,7 @@ const DonutChart = ({ needs, wants, savings }) => {
 };
 
 export default function BudgetRuleScreen({ navigation }) {
+  const Colors = useColors();
   const insets = useSafeAreaInsets();
   const { setBudgetRule, salary } = useBudgetStore();
   const { light, medium } = useHaptic();
@@ -77,6 +80,111 @@ export default function BudgetRuleScreen({ navigation }) {
   const wantsAmt = salary && rule.wants ? ((salary * rule.wants) / 100).toFixed(0) : '–';
   const savingsAmt = salary && rule.savings ? ((salary * rule.savings) / 100).toFixed(0) : '–';
 
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: Colors.bg,
+      paddingHorizontal: Spacing.xl,
+    },
+    backButton: {
+      width: 40,
+      height: 40,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginBottom: Spacing.xl,
+    },
+    step: {
+      fontSize: 13,
+      color: Colors.accent,
+      fontWeight: '600',
+      letterSpacing: 0.5,
+      marginBottom: Spacing.sm,
+      textTransform: 'uppercase',
+    },
+    title: {
+      fontSize: 28,
+      fontWeight: '700',
+      color: Colors.textPrimary,
+      letterSpacing: -0.5,
+      marginBottom: Spacing.sm,
+    },
+    subtitle: {
+      fontSize: 15,
+      color: Colors.textSecondary,
+      lineHeight: 22,
+      marginBottom: Spacing.xl,
+    },
+    donutSection: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: Spacing.xl,
+      marginBottom: Spacing.xl,
+    },
+    legend: {
+      flex: 1,
+      gap: Spacing.sm,
+    },
+    legendItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: Spacing.sm,
+    },
+    dot: {
+      width: 8,
+      height: 8,
+      borderRadius: 4,
+    },
+    legendText: {
+      fontSize: 13,
+      color: Colors.textSecondary,
+    },
+    customPlaceholder: {
+      flex: 1,
+      alignItems: 'center',
+      gap: Spacing.md,
+      paddingVertical: Spacing.xl,
+    },
+    customText: {
+      fontSize: 15,
+      color: Colors.textSecondary,
+    },
+    rulesScroll: {
+      gap: Spacing.md,
+      paddingBottom: Spacing.sm,
+    },
+    ruleCard: {
+      width: 130,
+      padding: Spacing.base,
+      borderRadius: Radius.lg,
+      backgroundColor: Colors.card,
+      borderWidth: 1,
+      borderColor: Colors.border,
+    },
+    ruleCardActive: {
+      borderColor: Colors.accent,
+      backgroundColor: Colors.accentDim,
+    },
+    ruleLabel: {
+      fontSize: 18,
+      fontWeight: '700',
+      color: Colors.textPrimary,
+      marginBottom: 4,
+    },
+    ruleDesc: {
+      fontSize: 12,
+      color: Colors.textSecondary,
+    },
+    checkIcon: {
+      position: 'absolute',
+      top: Spacing.sm,
+      right: Spacing.sm,
+    },
+    footer: {
+      marginTop: 'auto',
+      paddingTop: Spacing.xl,
+    },
+  });
+
   return (
     <View style={[styles.container, { paddingTop: insets.top + 20, paddingBottom: insets.bottom }]}>
       <Pressable style={styles.backButton} onPress={() => navigation.goBack()}>
@@ -86,6 +194,8 @@ export default function BudgetRuleScreen({ navigation }) {
       <Text style={styles.step}>Step 2 of 3</Text>
       <Text style={styles.title}>Pick a budget rule</Text>
       <Text style={styles.subtitle}>How do you want to split your income?</Text>
+
+      <OnboardingDots total={3} current={1} style={{ marginBottom: 24 }} />
 
       <View style={styles.donutSection}>
         {rule.needs !== null ? (
@@ -122,7 +232,11 @@ export default function BudgetRuleScreen({ navigation }) {
         {BUDGET_RULES.map((r, i) => (
           <Animated.View key={r.id} entering={FadeInDown.delay(i * 80).springify()}>
             <Pressable
-              style={[styles.ruleCard, selected.id === r.id && styles.ruleCardActive]}
+              style={({ pressed }) => [
+                styles.ruleCard,
+                selected.id === r.id && styles.ruleCardActive,
+                { opacity: pressed ? 0.75 : 1 },
+              ]}
               onPress={() => handleSelect(r)}
             >
               <Text style={[styles.ruleLabel, selected.id === r.id && { color: Colors.accent }]}>
@@ -145,108 +259,3 @@ export default function BudgetRuleScreen({ navigation }) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.bg,
-    paddingHorizontal: Spacing.xl,
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: Spacing.xl,
-  },
-  step: {
-    fontSize: 13,
-    color: Colors.accent,
-    fontWeight: '600',
-    letterSpacing: 0.5,
-    marginBottom: Spacing.sm,
-    textTransform: 'uppercase',
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: Colors.textPrimary,
-    letterSpacing: -0.5,
-    marginBottom: Spacing.sm,
-  },
-  subtitle: {
-    fontSize: 15,
-    color: Colors.textSecondary,
-    lineHeight: 22,
-    marginBottom: Spacing.xl,
-  },
-  donutSection: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.xl,
-    marginBottom: Spacing.xl,
-  },
-  legend: {
-    flex: 1,
-    gap: Spacing.sm,
-  },
-  legendItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.sm,
-  },
-  dot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-  },
-  legendText: {
-    fontSize: 13,
-    color: Colors.textSecondary,
-  },
-  customPlaceholder: {
-    flex: 1,
-    alignItems: 'center',
-    gap: Spacing.md,
-    paddingVertical: Spacing.xl,
-  },
-  customText: {
-    fontSize: 15,
-    color: Colors.textSecondary,
-  },
-  rulesScroll: {
-    gap: Spacing.md,
-    paddingBottom: Spacing.sm,
-  },
-  ruleCard: {
-    width: 130,
-    padding: Spacing.base,
-    borderRadius: Radius.lg,
-    backgroundColor: Colors.card,
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
-  ruleCardActive: {
-    borderColor: Colors.accent,
-    backgroundColor: Colors.accentDim,
-  },
-  ruleLabel: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: Colors.textPrimary,
-    marginBottom: 4,
-  },
-  ruleDesc: {
-    fontSize: 12,
-    color: Colors.textSecondary,
-  },
-  checkIcon: {
-    position: 'absolute',
-    top: Spacing.sm,
-    right: Spacing.sm,
-  },
-  footer: {
-    marginTop: 'auto',
-    paddingTop: Spacing.xl,
-  },
-});

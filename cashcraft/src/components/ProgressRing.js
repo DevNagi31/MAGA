@@ -7,7 +7,7 @@ import Animated, {
   withTiming,
   Easing,
 } from 'react-native-reanimated';
-import { Colors } from '../constants/theme';
+import { useColors } from '../hooks/useColors';
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
@@ -15,10 +15,14 @@ const ProgressRing = ({
   size = 60,
   strokeWidth = 5,
   progress = 0, // 0 to 1
-  color = Colors.accent,
-  backgroundColor = Colors.border,
+  color,
+  backgroundColor,
   children,
 }) => {
+  const Colors = useColors();
+  const resolvedColor = color !== undefined ? color : Colors.accent;
+  const resolvedBg = backgroundColor !== undefined ? backgroundColor : Colors.border;
+
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
   const animatedProgress = useSharedValue(0);
@@ -42,7 +46,7 @@ const ProgressRing = ({
           cx={size / 2}
           cy={size / 2}
           r={radius}
-          stroke={backgroundColor}
+          stroke={resolvedBg}
           strokeWidth={strokeWidth}
           fill="none"
         />
@@ -51,7 +55,7 @@ const ProgressRing = ({
           cx={size / 2}
           cy={size / 2}
           r={radius}
-          stroke={color}
+          stroke={resolvedColor}
           strokeWidth={strokeWidth}
           fill="none"
           strokeDasharray={circumference}

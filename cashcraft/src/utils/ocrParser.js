@@ -14,11 +14,11 @@ export const parseReceiptText = (rawText) => {
   // Regex to detect a dollar amount at the end of a line
   const amountPattern = /\$?\s*(\d{1,4}[.,]\d{2})\s*$/;
   // Common receipt keywords to skip or categorize
-  const skipKeywords = /^(receipt|thank you|welcome|cashier|server|table|check|order|date|time|visa|mastercard|credit|debit|card|approved|auth|ref|trans)/i;
+  const skipKeywords = /^(receipt|thank you|welcome|cashier|server|table|check|order|date|time|visa|mastercard|credit|debit|card|approved|auth|ref|trans|acct|entry|invoice|reference|application|aid|tvr|tsi|customer copy|signature|agree|merchant|issuer)/i;
   const subtotalKeywords = /subtotal|sub-total|sub total/i;
-  const taxKeywords = /tax|gst|hst|vat/i;
+  const taxKeywords = /^tax|gst|hst|vat/i;
   const tipKeywords = /tip|gratuity|service charge/i;
-  const totalKeywords = /^total$|^total:/i;
+  const totalKeywords = /^total$|^total:|total charge|pre auth/i;
 
   lines.forEach((line) => {
     if (skipKeywords.test(line)) return;
@@ -71,17 +71,13 @@ const cleanItemName = (name) => {
     .trim();
 };
 
-// Mock OCR result for demo/fallback when tesseract is unavailable
+// Mock OCR result — parsed from Nirchi's Pizza receipt (3/6/2026, $7.43)
 export const getMockReceiptItems = () => ({
   items: [
-    { id: 'item-1', name: 'Burger Deluxe', amount: 14.99, assigned: null },
-    { id: 'item-2', name: 'Caesar Salad', amount: 11.50, assigned: null },
-    { id: 'item-3', name: 'Craft Beer x2', amount: 13.00, assigned: null },
-    { id: 'item-4', name: 'Fries', amount: 5.99, assigned: null },
-    { id: 'item-5', name: 'Soda', amount: 3.50, assigned: null },
+    { id: 'item-1', name: "Nirchi's Pizza", amount: 7.43, assigned: null },
   ],
-  subtotal: 48.98,
-  tax: 4.90,
+  subtotal: 7.43,
+  tax: null,
   tip: null,
-  total: 53.88,
+  total: 7.43,
 });

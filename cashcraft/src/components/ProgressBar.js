@@ -7,14 +7,17 @@ import Animated, {
   Easing,
   interpolateColor,
 } from 'react-native-reanimated';
-import { Colors, Radius } from '../constants/theme';
+import { Radius } from '../constants/theme';
+import { useColors } from '../hooks/useColors';
 
 const ProgressBar = ({
   progress = 0, // 0 to 1
   height = 6,
-  backgroundColor = Colors.border,
+  backgroundColor,
   style,
 }) => {
+  const Colors = useColors();
+  const resolvedBg = backgroundColor !== undefined ? backgroundColor : Colors.border;
   const animatedProgress = useSharedValue(0);
 
   useEffect(() => {
@@ -40,7 +43,7 @@ const ProgressBar = ({
     <View
       style={[
         styles.track,
-        { height, backgroundColor, borderRadius: height / 2 },
+        { height, backgroundColor: resolvedBg, borderRadius: height / 2 },
         style,
       ]}
     >

@@ -6,7 +6,8 @@ import Animated, {
   withSpring,
 } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Colors, Radius, Spacing } from '../constants/theme';
+import { Radius, Spacing } from '../constants/theme';
+import { useColors } from '../hooks/useColors';
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
@@ -20,6 +21,7 @@ const PremiumButton = ({
   style,
   fullWidth = true,
 }) => {
+  const Colors = useColors();
   const scale = useSharedValue(1);
 
   const animatedStyle = useAnimatedStyle(() => ({
@@ -32,6 +34,46 @@ const PremiumButton = ({
   const handlePressOut = () => {
     scale.value = withSpring(1, { damping: 15, stiffness: 200 });
   };
+
+  const styles = StyleSheet.create({
+    base: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: Spacing.sm,
+      paddingVertical: Spacing.base,
+      paddingHorizontal: Spacing.xl,
+      borderRadius: Radius.lg,
+      minHeight: 52,
+    },
+    gradient: {
+      width: '100%',
+    },
+    fullWidth: {
+      width: '100%',
+    },
+    secondary: {
+      backgroundColor: Colors.accentDim,
+      borderWidth: 1,
+      borderColor: `${Colors.accent}40`,
+    },
+    ghost: {
+      backgroundColor: 'transparent',
+    },
+    danger: {
+      backgroundColor: 'rgba(239, 68, 68, 0.12)',
+      borderWidth: 1,
+      borderColor: 'rgba(239, 68, 68, 0.3)',
+    },
+    disabled: {
+      opacity: 0.4,
+    },
+    label: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: Colors.textPrimary,
+    },
+  });
 
   const containerStyle = [
     styles.base,
@@ -102,45 +144,5 @@ const PremiumButton = ({
     </AnimatedPressable>
   );
 };
-
-const styles = StyleSheet.create({
-  base: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: Spacing.sm,
-    paddingVertical: Spacing.base,
-    paddingHorizontal: Spacing.xl,
-    borderRadius: Radius.lg,
-    minHeight: 52,
-  },
-  gradient: {
-    width: '100%',
-  },
-  fullWidth: {
-    width: '100%',
-  },
-  secondary: {
-    backgroundColor: Colors.accentDim,
-    borderWidth: 1,
-    borderColor: `${Colors.accent}40`,
-  },
-  ghost: {
-    backgroundColor: 'transparent',
-  },
-  danger: {
-    backgroundColor: 'rgba(239, 68, 68, 0.12)',
-    borderWidth: 1,
-    borderColor: 'rgba(239, 68, 68, 0.3)',
-  },
-  disabled: {
-    opacity: 0.4,
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: Colors.textPrimary,
-  },
-});
 
 export default PremiumButton;

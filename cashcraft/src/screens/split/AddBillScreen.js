@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { Feather } from '@expo/vector-icons';
-import { Colors, Spacing, Radius } from '../../constants/theme';
+import { Spacing, Radius } from '../../constants/theme';
 import { useGroupStore } from '../../context/store';
 import AmountInput from '../../components/AmountInput';
 import MemberAvatar from '../../components/MemberAvatar';
@@ -19,10 +19,12 @@ import PremiumButton from '../../components/PremiumButton';
 import GlassCard from '../../components/GlassCard';
 import { useHaptic } from '../../hooks/useHaptic';
 import { formatCurrency } from '../../utils/formatters';
+import { useColors } from '../../hooks/useColors';
 
 const SPLIT_METHODS = ['Equal', 'Custom', 'Percentage'];
 
 export default function AddBillScreen({ navigation, route }) {
+  const Colors = useColors();
   const { groupId, prefilledItems } = route.params || {};
   const group = useGroupStore((s) => s.groups.find((g) => g.id === groupId));
   const addBillToGroup = useGroupStore((s) => s.addBillToGroup);
@@ -82,6 +84,131 @@ export default function AddBillScreen({ navigation, route }) {
   };
 
   if (!group) return null;
+
+  const styles = StyleSheet.create({
+    content: {
+      padding: Spacing.base,
+      gap: Spacing.lg,
+      paddingBottom: 40,
+    },
+    label: {
+      fontSize: 12,
+      fontWeight: '600',
+      color: Colors.textTertiary,
+      letterSpacing: 0.5,
+      textTransform: 'uppercase',
+      marginBottom: Spacing.sm,
+    },
+    input: {
+      backgroundColor: Colors.card,
+      borderRadius: Radius.md,
+      borderWidth: 1,
+      borderColor: Colors.border,
+      paddingHorizontal: Spacing.base,
+      paddingVertical: Spacing.md,
+      fontSize: 16,
+      color: Colors.textPrimary,
+    },
+    paidByRow: {
+      gap: Spacing.sm,
+    },
+    payerChip: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: Spacing.sm,
+      paddingHorizontal: Spacing.md,
+      paddingVertical: Spacing.sm,
+      borderRadius: Radius.full,
+      backgroundColor: Colors.card,
+      borderWidth: 1,
+      borderColor: Colors.border,
+    },
+    payerChipActive: {
+      backgroundColor: Colors.accentDim,
+      borderColor: Colors.accent,
+    },
+    payerName: {
+      fontSize: 14,
+      fontWeight: '500',
+      color: Colors.textSecondary,
+    },
+    methodRow: {
+      flexDirection: 'row',
+      gap: Spacing.sm,
+    },
+    methodChip: {
+      flex: 1,
+      paddingVertical: Spacing.sm,
+      borderRadius: Radius.md,
+      backgroundColor: Colors.card,
+      borderWidth: 1,
+      borderColor: Colors.border,
+      alignItems: 'center',
+    },
+    methodChipActive: {
+      backgroundColor: Colors.accentDim,
+      borderColor: Colors.accent,
+    },
+    methodText: {
+      fontSize: 14,
+      fontWeight: '600',
+      color: Colors.textSecondary,
+    },
+    methodTextActive: {
+      color: Colors.accent,
+    },
+    splitRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: Spacing.md,
+      paddingVertical: Spacing.sm,
+    },
+    splitName: {
+      flex: 1,
+      fontSize: 15,
+      fontWeight: '500',
+      color: Colors.textPrimary,
+    },
+    splitAmount: {
+      fontSize: 15,
+      fontWeight: '700',
+      color: Colors.textPrimary,
+    },
+    splitInput: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: Colors.cardElevated,
+      borderRadius: Radius.sm,
+      borderWidth: 1,
+      borderColor: Colors.border,
+      paddingHorizontal: Spacing.sm,
+      paddingVertical: 4,
+      minWidth: 80,
+    },
+    splitInputPrefix: {
+      fontSize: 14,
+      color: Colors.textTertiary,
+      marginRight: 2,
+    },
+    splitInputField: {
+      fontSize: 14,
+      color: Colors.textPrimary,
+      minWidth: 50,
+    },
+    balanceRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+    balanceLabel: {
+      fontSize: 13,
+      color: Colors.textTertiary,
+    },
+    balanceAmount: {
+      fontSize: 14,
+      fontWeight: '700',
+    },
+  });
 
   return (
     <KeyboardAvoidingView
@@ -201,128 +328,3 @@ export default function AddBillScreen({ navigation, route }) {
     </KeyboardAvoidingView>
   );
 }
-
-const styles = StyleSheet.create({
-  content: {
-    padding: Spacing.base,
-    gap: Spacing.lg,
-    paddingBottom: 40,
-  },
-  label: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: Colors.textTertiary,
-    letterSpacing: 0.5,
-    textTransform: 'uppercase',
-    marginBottom: Spacing.sm,
-  },
-  input: {
-    backgroundColor: Colors.card,
-    borderRadius: Radius.md,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    paddingHorizontal: Spacing.base,
-    paddingVertical: Spacing.md,
-    fontSize: 16,
-    color: Colors.textPrimary,
-  },
-  paidByRow: {
-    gap: Spacing.sm,
-  },
-  payerChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.sm,
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.sm,
-    borderRadius: Radius.full,
-    backgroundColor: Colors.card,
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
-  payerChipActive: {
-    backgroundColor: Colors.accentDim,
-    borderColor: Colors.accent,
-  },
-  payerName: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: Colors.textSecondary,
-  },
-  methodRow: {
-    flexDirection: 'row',
-    gap: Spacing.sm,
-  },
-  methodChip: {
-    flex: 1,
-    paddingVertical: Spacing.sm,
-    borderRadius: Radius.md,
-    backgroundColor: Colors.card,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    alignItems: 'center',
-  },
-  methodChipActive: {
-    backgroundColor: Colors.accentDim,
-    borderColor: Colors.accent,
-  },
-  methodText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: Colors.textSecondary,
-  },
-  methodTextActive: {
-    color: Colors.accent,
-  },
-  splitRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.md,
-    paddingVertical: Spacing.sm,
-  },
-  splitName: {
-    flex: 1,
-    fontSize: 15,
-    fontWeight: '500',
-    color: Colors.textPrimary,
-  },
-  splitAmount: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: Colors.textPrimary,
-  },
-  splitInput: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: Colors.cardElevated,
-    borderRadius: Radius.sm,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    paddingHorizontal: Spacing.sm,
-    paddingVertical: 4,
-    minWidth: 80,
-  },
-  splitInputPrefix: {
-    fontSize: 14,
-    color: Colors.textTertiary,
-    marginRight: 2,
-  },
-  splitInputField: {
-    fontSize: 14,
-    color: Colors.textPrimary,
-    minWidth: 50,
-  },
-  balanceRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  balanceLabel: {
-    fontSize: 13,
-    color: Colors.textTertiary,
-  },
-  balanceAmount: {
-    fontSize: 14,
-    fontWeight: '700',
-  },
-});

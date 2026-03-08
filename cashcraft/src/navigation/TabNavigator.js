@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, Pressable } from 'react-native';
+import { View, StyleSheet, Pressable } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Animated, {
@@ -9,8 +9,8 @@ import Animated, {
 } from 'react-native-reanimated';
 import { Feather } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Colors, Spacing, Radius } from '../constants/theme';
-import { defaultStackOptions } from './screenOptions';
+import { Spacing } from '../constants/theme';
+import { useColors } from '../hooks/useColors';
 
 // Screens
 import HomeScreen from '../screens/home/HomeScreen';
@@ -41,6 +41,7 @@ const TAB_ITEMS = [
 
 // Extracted into its own component so hooks are called at top-level
 const TabItem = ({ route, isFocused, isScan, navigation, item }) => {
+  const Colors = useColors();
   const scale = useSharedValue(1);
 
   const animatedStyle = useAnimatedStyle(() => ({
@@ -63,8 +64,8 @@ const TabItem = ({ route, isFocused, isScan, navigation, item }) => {
 
   if (isScan) {
     return (
-      <Pressable key={route.key} style={styles.scanButton} onPress={handlePress}>
-        <Animated.View style={[animatedStyle, styles.scanCircle]}>
+      <Pressable key={route.key} style={scanStyles.scanButton} onPress={handlePress}>
+        <Animated.View style={[animatedStyle, { width: 58, height: 58, borderRadius: 29, backgroundColor: Colors.accent, alignItems: 'center', justifyContent: 'center', shadowColor: Colors.accent, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.4, shadowRadius: 12, elevation: 8 }]}>
           <Feather name="camera" size={22} color="#050505" />
         </Animated.View>
       </Pressable>
@@ -72,24 +73,25 @@ const TabItem = ({ route, isFocused, isScan, navigation, item }) => {
   }
 
   return (
-    <Pressable key={route.key} style={styles.tabItem} onPress={handlePress}>
-      <Animated.View style={[animatedStyle, styles.tabInner]}>
+    <Pressable key={route.key} style={scanStyles.tabItem} onPress={handlePress}>
+      <Animated.View style={[animatedStyle, scanStyles.tabInner]}>
         <Feather
           name={item?.icon || 'circle'}
           size={22}
           color={isFocused ? Colors.accent : Colors.textTertiary}
         />
-        {isFocused && <View style={styles.activeDot} />}
+        {isFocused && <View style={[scanStyles.activeDot, { backgroundColor: Colors.accent }]} />}
       </Animated.View>
     </Pressable>
   );
 };
 
 const CustomTabBar = ({ state, descriptors, navigation }) => {
+  const Colors = useColors();
   const insets = useSafeAreaInsets();
 
   return (
-    <View style={[styles.tabBar, { paddingBottom: insets.bottom || Spacing.base }]}>
+    <View style={[{ flexDirection: 'row', backgroundColor: Colors.card, borderTopWidth: 1, borderTopColor: Colors.border, paddingTop: Spacing.sm, paddingHorizontal: Spacing.base, paddingBottom: insets.bottom || Spacing.base }]}>
       {state.routes.map((route, index) => {
         const isFocused = state.index === index;
         const isScan = route.name === 'Scan';
@@ -110,10 +112,24 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
   );
 };
 
+// Stack screen options factory — must be called inside component to get live Colors
+function makeStackOptions(Colors) {
+  return {
+    headerStyle: { backgroundColor: Colors.bg },
+    headerTintColor: Colors.textPrimary,
+    headerTitleStyle: { fontWeight: '600', fontSize: 17, color: Colors.textPrimary },
+    headerShadowVisible: false,
+    headerBackTitle: '',
+    contentStyle: { backgroundColor: Colors.bg },
+    animation: 'slide_from_right',
+  };
+}
+
 // Home Stack
 function HomeStack() {
+  const Colors = useColors();
   return (
-    <Stack.Navigator screenOptions={defaultStackOptions}>
+    <Stack.Navigator screenOptions={makeStackOptions(Colors)}>
       <Stack.Screen name="HomeMain" component={HomeScreen} options={{ headerShown: false }} />
       <Stack.Screen name="AddExpense" component={AddExpenseScreen} options={{ title: 'Add Expense' }} />
       <Stack.Screen name="ExpenseHistory" component={ExpenseHistoryScreen} options={{ title: 'All Expenses' }} />
@@ -123,8 +139,9 @@ function HomeStack() {
 
 // Split Stack
 function SplitStack() {
+  const Colors = useColors();
   return (
-    <Stack.Navigator screenOptions={defaultStackOptions}>
+    <Stack.Navigator screenOptions={makeStackOptions(Colors)}>
       <Stack.Screen name="GroupsList" component={GroupsListScreen} options={{ headerShown: false }} />
       <Stack.Screen name="CreateGroup" component={CreateGroupScreen} options={{ title: 'New Group' }} />
       <Stack.Screen name="GroupDetail" component={GroupDetailScreen} options={{ title: '' }} />
@@ -136,10 +153,31 @@ function SplitStack() {
 
 // Scan Stack
 function ScanStack() {
+  const Colors = useColors();
   return (
-    <Stack.Navigator screenOptions={defaultStackOptions}>
+    <Stack.Navigator screenOptions={makeStackOptions(Colors)}>
       <Stack.Screen name="ScanMain" component={ScanScreen} options={{ headerShown: false }} />
       <Stack.Screen name="ScanResults" component={ScanResultsScreen} options={{ title: 'Scan Results' }} />
+    </Stack.Navigator>
+  );
+}
+
+// Analytics wrapper with themed header
+function AnalyticsStack() {
+  const Colors = useColors();
+  return (
+    <Stack.Navigator screenOptions={makeStackOptions(Colors)}>
+      <Stack.Screen name="AnalyticsMain" component={AnalyticsScreen} options={{ headerShown: false }} />
+    </Stack.Navigator>
+  );
+}
+
+// Settings wrapper with themed header
+function SettingsStack() {
+  const Colors = useColors();
+  return (
+    <Stack.Navigator screenOptions={makeStackOptions(Colors)}>
+      <Stack.Screen name="SettingsMain" component={SettingsScreen} options={{ headerShown: false }} />
     </Stack.Navigator>
   );
 }
@@ -153,21 +191,13 @@ export default function TabNavigator() {
       <Tab.Screen name="Home" component={HomeStack} />
       <Tab.Screen name="Split" component={SplitStack} />
       <Tab.Screen name="Scan" component={ScanStack} />
-      <Tab.Screen name="Analytics" component={AnalyticsScreen} />
-      <Tab.Screen name="Settings" component={SettingsScreen} />
+      <Tab.Screen name="Analytics" component={AnalyticsStack} />
+      <Tab.Screen name="Settings" component={SettingsStack} />
     </Tab.Navigator>
   );
 }
 
-const styles = StyleSheet.create({
-  tabBar: {
-    flexDirection: 'row',
-    backgroundColor: Colors.card,
-    borderTopWidth: 1,
-    borderTopColor: Colors.border,
-    paddingTop: Spacing.sm,
-    paddingHorizontal: Spacing.base,
-  },
+const scanStyles = StyleSheet.create({
   tabItem: {
     flex: 1,
     alignItems: 'center',
@@ -181,24 +211,10 @@ const styles = StyleSheet.create({
     width: 4,
     height: 4,
     borderRadius: 2,
-    backgroundColor: Colors.accent,
   },
   scanButton: {
     flex: 1,
     alignItems: 'center',
     marginTop: -20,
-  },
-  scanCircle: {
-    width: 58,
-    height: 58,
-    borderRadius: 29,
-    backgroundColor: Colors.accent,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: Colors.accent,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.4,
-    shadowRadius: 12,
-    elevation: 8,
   },
 });

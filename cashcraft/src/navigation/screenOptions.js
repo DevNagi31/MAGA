@@ -1,19 +1,20 @@
-import { Colors } from '../constants/theme';
+import { DarkColors } from '../constants/theme';
 
+// These are fallback static options. TabNavigator uses makeStackOptions(Colors) for dynamic theming.
 export const defaultStackOptions = {
   headerStyle: {
-    backgroundColor: Colors.bg,
+    backgroundColor: DarkColors.bg,
   },
-  headerTintColor: Colors.textPrimary,
+  headerTintColor: DarkColors.textPrimary,
   headerTitleStyle: {
     fontWeight: '600',
     fontSize: 17,
-    color: Colors.textPrimary,
+    color: DarkColors.textPrimary,
   },
   headerShadowVisible: false,
   headerBackTitle: '',
   contentStyle: {
-    backgroundColor: Colors.bg,
+    backgroundColor: DarkColors.bg,
   },
   animation: 'slide_from_right',
 };

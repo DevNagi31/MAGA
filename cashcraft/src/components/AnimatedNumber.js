@@ -1,44 +1,33 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Text } from 'react-native';
-import Animated, {
+import {
   useSharedValue,
-  useAnimatedProps,
   withTiming,
+  useAnimatedReaction,
+  runOnJS,
   Easing,
 } from 'react-native-reanimated';
 
-const AnimatedText = Animated.createAnimatedComponent(Text);
-
-const AnimatedNumber = ({
-  value,
-  prefix = '$',
-  suffix = '',
-  style,
-  duration = 800,
-  decimals = 2,
-}) => {
+const AnimatedNumber = ({ value, prefix = '$', suffix = '', style, duration = 800, decimals = 2 }) => {
   const animatedValue = useSharedValue(0);
+  const [display, setDisplay] = useState(0);
+
+  useAnimatedReaction(
+    () => animatedValue.value,
+    (v) => { runOnJS(setDisplay)(v); }
+  );
 
   useEffect(() => {
-    animatedValue.value = withTiming(value, {
-      duration,
-      easing: Easing.out(Easing.cubic),
-    });
+    animatedValue.value = withTiming(value, { duration, easing: Easing.out(Easing.cubic) });
   }, [value]);
 
-  const animatedProps = useAnimatedProps(() => {
-    const formatted = animatedValue.value.toFixed(decimals);
-    const withCommas = parseFloat(formatted).toLocaleString('en-US', {
-      minimumFractionDigits: decimals,
-      maximumFractionDigits: decimals,
-    });
-    return {
-      text: `${prefix}${withCommas}${suffix}`,
-      defaultValue: `${prefix}${withCommas}${suffix}`,
-    };
+  const formatted = display.toFixed(decimals);
+  const withCommas = parseFloat(formatted).toLocaleString('en-US', {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
   });
 
-  return <AnimatedText style={style} animatedProps={animatedProps} />;
+  return <Text style={style}>{prefix}{withCommas}{suffix}</Text>;
 };
 
 export default AnimatedNumber;

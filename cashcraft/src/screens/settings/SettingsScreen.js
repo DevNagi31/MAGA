@@ -7,33 +7,28 @@ import {
   Pressable,
   TextInput,
   Alert,
+  Switch,
 } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { Feather } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Colors, Spacing, Radius, BUDGET_RULES } from '../../constants/theme';
+import { Spacing, Radius, BUDGET_RULES } from '../../constants/theme';
 import { useBudgetStore, useExpenseStore, useGroupStore, useAppStore } from '../../context/store';
 import GlassCard from '../../components/GlassCard';
 import PremiumButton from '../../components/PremiumButton';
 import { useHaptic } from '../../hooks/useHaptic';
-
-const SettingRow = ({ icon, label, value, onPress, danger = false }) => (
-  <Pressable style={styles.settingRow} onPress={onPress}>
-    <View style={[styles.settingIcon, danger && { backgroundColor: 'rgba(239,68,68,0.12)' }]}>
-      <Feather name={icon} size={16} color={danger ? Colors.danger : Colors.accent} />
-    </View>
-    <Text style={[styles.settingLabel, danger && { color: Colors.danger }]}>{label}</Text>
-    {value && <Text style={styles.settingValue}>{value}</Text>}
-    {onPress && <Feather name="chevron-right" size={16} color={Colors.textTertiary} />}
-  </Pressable>
-);
+import { useColors } from '../../hooks/useColors';
 
 export default function SettingsScreen() {
+  const Colors = useColors();
   const insets = useSafeAreaInsets();
   const { warning } = useHaptic();
   const { salary, setSalary, budgetRule, setBudgetRule } = useBudgetStore();
+  const { themeMode, setThemeMode } = useAppStore();
   const [editingSalary, setEditingSalary] = useState(false);
   const [salaryInput, setSalaryInput] = useState(salary?.toString() || '');
+
+  const isDark = themeMode === 'dark';
 
   const handleSaveSalary = () => {
     const val = parseFloat(salaryInput);
@@ -62,6 +57,184 @@ export default function SettingsScreen() {
     );
   };
 
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: Colors.bg,
+    },
+    scroll: {
+      paddingHorizontal: Spacing.base,
+      paddingTop: Spacing.base,
+      gap: Spacing.xl,
+    },
+    title: {
+      fontSize: 28,
+      fontWeight: '700',
+      color: Colors.textPrimary,
+      marginBottom: Spacing.sm,
+    },
+    sectionLabel: {
+      fontSize: 12,
+      fontWeight: '700',
+      color: Colors.textTertiary,
+      letterSpacing: 0.5,
+      textTransform: 'uppercase',
+      marginBottom: Spacing.sm,
+    },
+    settingsGroup: {
+      gap: 0,
+      padding: 0,
+      overflow: 'hidden',
+    },
+    settingRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: Spacing.md,
+      padding: Spacing.base,
+    },
+    settingIcon: {
+      width: 32,
+      height: 32,
+      borderRadius: 8,
+      backgroundColor: Colors.accentDim,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    settingLabel: {
+      flex: 1,
+      fontSize: 15,
+      fontWeight: '500',
+      color: Colors.textPrimary,
+    },
+    settingValue: {
+      fontSize: 15,
+      color: Colors.textSecondary,
+      marginRight: Spacing.xs,
+    },
+    separator: {
+      height: 1,
+      backgroundColor: Colors.border,
+      marginHorizontal: Spacing.base,
+    },
+    editSalaryRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      padding: Spacing.base,
+      gap: Spacing.sm,
+    },
+    dollarSign: {
+      fontSize: 20,
+      color: Colors.accent,
+      fontWeight: '600',
+    },
+    salaryInput: {
+      flex: 1,
+      fontSize: 20,
+      fontWeight: '700',
+      color: Colors.textPrimary,
+    },
+    saveSalaryBtn: {
+      width: 36,
+      height: 36,
+      borderRadius: 18,
+      backgroundColor: Colors.accent,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    ruleSection: {
+      padding: Spacing.base,
+      gap: Spacing.md,
+    },
+    ruleLabel: {
+      fontSize: 15,
+      fontWeight: '500',
+      color: Colors.textPrimary,
+    },
+    rulesRow: {
+      flexDirection: 'row',
+      gap: Spacing.sm,
+    },
+    ruleChip: {
+      flex: 1,
+      paddingVertical: Spacing.sm,
+      borderRadius: Radius.md,
+      backgroundColor: Colors.cardElevated,
+      borderWidth: 1,
+      borderColor: Colors.border,
+      alignItems: 'center',
+    },
+    ruleChipActive: {
+      backgroundColor: Colors.accentDim,
+      borderColor: Colors.accent,
+    },
+    ruleChipText: {
+      fontSize: 13,
+      fontWeight: '600',
+      color: Colors.textSecondary,
+    },
+    aboutCard: {
+      padding: Spacing.lg,
+      gap: Spacing.md,
+    },
+    aboutHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: Spacing.md,
+    },
+    aboutIcon: {
+      width: 48,
+      height: 48,
+      borderRadius: 14,
+      backgroundColor: Colors.accentDim,
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderWidth: 1,
+      borderColor: `${Colors.accent}40`,
+    },
+    aboutAppName: {
+      fontSize: 18,
+      fontWeight: '700',
+      color: Colors.textPrimary,
+    },
+    aboutVersion: {
+      fontSize: 13,
+      color: Colors.textSecondary,
+    },
+    aboutDesc: {
+      fontSize: 14,
+      color: Colors.textSecondary,
+      lineHeight: 20,
+    },
+    hackathonBadge: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: Spacing.xs,
+      alignSelf: 'flex-start',
+      backgroundColor: 'rgba(251, 191, 36, 0.1)',
+      paddingHorizontal: Spacing.sm,
+      paddingVertical: 4,
+      borderRadius: Radius.full,
+      borderWidth: 1,
+      borderColor: 'rgba(251, 191, 36, 0.2)',
+    },
+    hackathonText: {
+      fontSize: 12,
+      fontWeight: '600',
+      color: Colors.warning,
+    },
+  });
+
+  const SettingRow = ({ icon, label, value, onPress, danger = false }) => (
+    <Pressable style={styles.settingRow} onPress={onPress}>
+      <View style={[styles.settingIcon, danger && { backgroundColor: 'rgba(239,68,68,0.12)' }]}>
+        <Feather name={icon} size={16} color={danger ? Colors.danger : Colors.accent} />
+      </View>
+      <Text style={[styles.settingLabel, danger && { color: Colors.danger }]}>{label}</Text>
+      {value && <Text style={styles.settingValue}>{value}</Text>}
+      {onPress && <Feather name="chevron-right" size={16} color={Colors.textTertiary} />}
+    </Pressable>
+  );
+
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
       <ScrollView
@@ -69,6 +242,25 @@ export default function SettingsScreen() {
         contentContainerStyle={styles.scroll}
       >
         <Text style={styles.title}>Settings</Text>
+
+        {/* Appearance */}
+        <Animated.View entering={FadeInDown.delay(40).springify()}>
+          <Text style={styles.sectionLabel}>Appearance</Text>
+          <GlassCard style={styles.settingsGroup}>
+            <View style={styles.settingRow}>
+              <View style={styles.settingIcon}>
+                <Feather name={isDark ? 'moon' : 'sun'} size={16} color={Colors.accent} />
+              </View>
+              <Text style={styles.settingLabel}>Dark Mode</Text>
+              <Switch
+                value={isDark}
+                onValueChange={(v) => setThemeMode(v ? 'dark' : 'light')}
+                trackColor={{ false: Colors.border, true: Colors.accentDim }}
+                thumbColor={isDark ? Colors.accent : Colors.textTertiary}
+              />
+            </View>
+          </GlassCard>
+        </Animated.View>
 
         {/* Budget */}
         <Animated.View entering={FadeInDown.delay(50).springify()}>
@@ -168,170 +360,3 @@ export default function SettingsScreen() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.bg,
-  },
-  scroll: {
-    paddingHorizontal: Spacing.base,
-    paddingTop: Spacing.base,
-    gap: Spacing.xl,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: Colors.textPrimary,
-    marginBottom: Spacing.sm,
-  },
-  sectionLabel: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: Colors.textTertiary,
-    letterSpacing: 0.5,
-    textTransform: 'uppercase',
-    marginBottom: Spacing.sm,
-  },
-  settingsGroup: {
-    gap: 0,
-    padding: 0,
-    overflow: 'hidden',
-  },
-  settingRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.md,
-    padding: Spacing.base,
-  },
-  settingIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: 8,
-    backgroundColor: Colors.accentDim,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  settingLabel: {
-    flex: 1,
-    fontSize: 15,
-    fontWeight: '500',
-    color: Colors.textPrimary,
-  },
-  settingValue: {
-    fontSize: 15,
-    color: Colors.textSecondary,
-    marginRight: Spacing.xs,
-  },
-  separator: {
-    height: 1,
-    backgroundColor: Colors.border,
-    marginHorizontal: Spacing.base,
-  },
-  editSalaryRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: Spacing.base,
-    gap: Spacing.sm,
-  },
-  dollarSign: {
-    fontSize: 20,
-    color: Colors.accent,
-    fontWeight: '600',
-  },
-  salaryInput: {
-    flex: 1,
-    fontSize: 20,
-    fontWeight: '700',
-    color: Colors.textPrimary,
-  },
-  saveSalaryBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: Colors.accent,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  ruleSection: {
-    padding: Spacing.base,
-    gap: Spacing.md,
-  },
-  ruleLabel: {
-    fontSize: 15,
-    fontWeight: '500',
-    color: Colors.textPrimary,
-  },
-  rulesRow: {
-    flexDirection: 'row',
-    gap: Spacing.sm,
-  },
-  ruleChip: {
-    flex: 1,
-    paddingVertical: Spacing.sm,
-    borderRadius: Radius.md,
-    backgroundColor: Colors.cardElevated,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    alignItems: 'center',
-  },
-  ruleChipActive: {
-    backgroundColor: Colors.accentDim,
-    borderColor: Colors.accent,
-  },
-  ruleChipText: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: Colors.textSecondary,
-  },
-  aboutCard: {
-    padding: Spacing.lg,
-    gap: Spacing.md,
-  },
-  aboutHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.md,
-  },
-  aboutIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 14,
-    backgroundColor: Colors.accentDim,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: `${Colors.accent}40`,
-  },
-  aboutAppName: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: Colors.textPrimary,
-  },
-  aboutVersion: {
-    fontSize: 13,
-    color: Colors.textSecondary,
-  },
-  aboutDesc: {
-    fontSize: 14,
-    color: Colors.textSecondary,
-    lineHeight: 20,
-  },
-  hackathonBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.xs,
-    alignSelf: 'flex-start',
-    backgroundColor: 'rgba(251, 191, 36, 0.1)',
-    paddingHorizontal: Spacing.sm,
-    paddingVertical: 4,
-    borderRadius: Radius.full,
-    borderWidth: 1,
-    borderColor: 'rgba(251, 191, 36, 0.2)',
-  },
-  hackathonText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: Colors.warning,
-  },
-});

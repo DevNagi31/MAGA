@@ -6,11 +6,13 @@ import Animated, {
   withSpring,
 } from 'react-native-reanimated';
 import { Feather } from '@expo/vector-icons';
-import { Colors, Radius, Spacing } from '../constants/theme';
+import { Radius, Spacing } from '../constants/theme';
+import { useColors } from '../hooks/useColors';
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 const CategoryChip = ({ category, selected, onPress }) => {
+  const Colors = useColors();
   const scale = useSharedValue(1);
 
   const animatedStyle = useAnimatedStyle(() => ({
@@ -23,6 +25,23 @@ const CategoryChip = ({ category, selected, onPress }) => {
   const handlePressOut = () => {
     scale.value = withSpring(1, { damping: 15, stiffness: 200 });
   };
+
+  const styles = StyleSheet.create({
+    chip: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: Spacing.xs,
+      paddingHorizontal: Spacing.md,
+      paddingVertical: Spacing.sm,
+      borderRadius: Radius.full,
+      borderWidth: 1,
+      marginRight: Spacing.sm,
+    },
+    label: {
+      fontSize: 13,
+      fontWeight: '500',
+    },
+  });
 
   return (
     <AnimatedPressable
@@ -53,22 +72,5 @@ const CategoryChip = ({ category, selected, onPress }) => {
     </AnimatedPressable>
   );
 };
-
-const styles = StyleSheet.create({
-  chip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.xs,
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.sm,
-    borderRadius: Radius.full,
-    borderWidth: 1,
-    marginRight: Spacing.sm,
-  },
-  label: {
-    fontSize: 13,
-    fontWeight: '500',
-  },
-});
 
 export default CategoryChip;

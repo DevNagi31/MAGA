@@ -10,15 +10,17 @@ import Animated, { FadeInDown } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Colors, Spacing, Radius } from '../../constants/theme';
+import { Spacing, Radius } from '../../constants/theme';
 import { useGroupStore } from '../../context/store';
 import { simplifyDebts, getMemberBalance } from '../../utils/debtSimplifier';
 import { formatCurrency, formatDate } from '../../utils/formatters';
 import GlassCard from '../../components/GlassCard';
 import MemberAvatar from '../../components/MemberAvatar';
 import { useHaptic } from '../../hooks/useHaptic';
+import { useColors } from '../../hooks/useColors';
 
 export default function GroupDetailScreen({ navigation, route }) {
+  const Colors = useColors();
   const { groupId } = route.params;
   const group = useGroupStore((s) => s.groups.find((g) => g.id === groupId));
   const { light } = useHaptic();
@@ -36,6 +38,154 @@ export default function GroupDetailScreen({ navigation, route }) {
 
   const unsettledBills = group.bills.filter((b) => !b.settled);
   const settledBills = group.bills.filter((b) => b.settled);
+
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: Colors.bg,
+    },
+    scroll: {
+      paddingHorizontal: Spacing.base,
+      paddingTop: Spacing.base,
+      gap: Spacing.lg,
+    },
+    sectionLabel: {
+      fontSize: 12,
+      fontWeight: '700',
+      color: Colors.textTertiary,
+      letterSpacing: 0.5,
+      textTransform: 'uppercase',
+      marginBottom: Spacing.md,
+    },
+    sectionHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginBottom: Spacing.md,
+    },
+    membersRow: {
+      flexDirection: 'row',
+      gap: Spacing.md,
+      paddingBottom: Spacing.sm,
+    },
+    memberCard: {
+      alignItems: 'center',
+      gap: Spacing.xs,
+      minWidth: 64,
+    },
+    memberName: {
+      fontSize: 12,
+      fontWeight: '600',
+      color: Colors.textPrimary,
+      textAlign: 'center',
+    },
+    memberBalance: {
+      fontSize: 11,
+      fontWeight: '700',
+    },
+    settleBtn: {
+      paddingHorizontal: Spacing.md,
+      paddingVertical: Spacing.xs,
+      backgroundColor: Colors.accentDim,
+      borderRadius: Radius.full,
+      borderWidth: 1,
+      borderColor: `${Colors.accent}40`,
+    },
+    settleBtnText: {
+      fontSize: 13,
+      fontWeight: '600',
+      color: Colors.accent,
+    },
+    debtCard: {
+      marginBottom: Spacing.sm,
+      gap: Spacing.sm,
+    },
+    debtRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: Spacing.md,
+    },
+    debtArrow: {
+      flex: 1,
+      alignItems: 'center',
+      gap: 4,
+    },
+    debtAmount: {
+      fontSize: 15,
+      fontWeight: '700',
+      color: Colors.textPrimary,
+    },
+    debtLabel: {
+      fontSize: 13,
+      color: Colors.textSecondary,
+      textAlign: 'center',
+    },
+    addBillBtn: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+      paddingHorizontal: Spacing.md,
+      paddingVertical: Spacing.xs,
+      backgroundColor: Colors.accentDim,
+      borderRadius: Radius.full,
+      borderWidth: 1,
+      borderColor: `${Colors.accent}40`,
+    },
+    addBillText: {
+      fontSize: 13,
+      fontWeight: '600',
+      color: Colors.accent,
+    },
+    billCard: {
+      marginBottom: Spacing.sm,
+      gap: Spacing.sm,
+    },
+    billHeader: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      justifyContent: 'space-between',
+    },
+    billDescription: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: Colors.textPrimary,
+    },
+    billDate: {
+      fontSize: 12,
+      color: Colors.textTertiary,
+      marginTop: 2,
+    },
+    billAmount: {
+      fontSize: 18,
+      fontWeight: '700',
+      color: Colors.textPrimary,
+    },
+    billPayer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: Spacing.sm,
+    },
+    billPayerText: {
+      fontSize: 13,
+      color: Colors.textSecondary,
+    },
+    allSettledCard: {
+      alignItems: 'center',
+      gap: Spacing.sm,
+      paddingVertical: Spacing.xl,
+    },
+    allSettledText: {
+      fontSize: 15,
+      fontWeight: '600',
+      color: Colors.accent,
+    },
+    settledLabel: {
+      fontSize: 13,
+      color: Colors.textTertiary,
+      textAlign: 'center',
+      marginTop: Spacing.sm,
+    },
+  });
 
   return (
     <View style={styles.container}>
@@ -147,151 +297,3 @@ export default function GroupDetailScreen({ navigation, route }) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.bg,
-  },
-  scroll: {
-    paddingHorizontal: Spacing.base,
-    paddingTop: Spacing.base,
-    gap: Spacing.lg,
-  },
-  sectionLabel: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: Colors.textTertiary,
-    letterSpacing: 0.5,
-    textTransform: 'uppercase',
-    marginBottom: Spacing.md,
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: Spacing.md,
-  },
-  membersRow: {
-    flexDirection: 'row',
-    gap: Spacing.md,
-    paddingBottom: Spacing.sm,
-  },
-  memberCard: {
-    alignItems: 'center',
-    gap: Spacing.xs,
-    minWidth: 64,
-  },
-  memberName: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: Colors.textPrimary,
-    textAlign: 'center',
-  },
-  memberBalance: {
-    fontSize: 11,
-    fontWeight: '700',
-  },
-  settleBtn: {
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.xs,
-    backgroundColor: Colors.accentDim,
-    borderRadius: Radius.full,
-    borderWidth: 1,
-    borderColor: `${Colors.accent}40`,
-  },
-  settleBtnText: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: Colors.accent,
-  },
-  debtCard: {
-    marginBottom: Spacing.sm,
-    gap: Spacing.sm,
-  },
-  debtRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.md,
-  },
-  debtArrow: {
-    flex: 1,
-    alignItems: 'center',
-    gap: 4,
-  },
-  debtAmount: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: Colors.textPrimary,
-  },
-  debtLabel: {
-    fontSize: 13,
-    color: Colors.textSecondary,
-    textAlign: 'center',
-  },
-  addBillBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.xs,
-    backgroundColor: Colors.accentDim,
-    borderRadius: Radius.full,
-    borderWidth: 1,
-    borderColor: `${Colors.accent}40`,
-  },
-  addBillText: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: Colors.accent,
-  },
-  billCard: {
-    marginBottom: Spacing.sm,
-    gap: Spacing.sm,
-  },
-  billHeader: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    justifyContent: 'space-between',
-  },
-  billDescription: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: Colors.textPrimary,
-  },
-  billDate: {
-    fontSize: 12,
-    color: Colors.textTertiary,
-    marginTop: 2,
-  },
-  billAmount: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: Colors.textPrimary,
-  },
-  billPayer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.sm,
-  },
-  billPayerText: {
-    fontSize: 13,
-    color: Colors.textSecondary,
-  },
-  allSettledCard: {
-    alignItems: 'center',
-    gap: Spacing.sm,
-    paddingVertical: Spacing.xl,
-  },
-  allSettledText: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: Colors.accent,
-  },
-  settledLabel: {
-    fontSize: 13,
-    color: Colors.textTertiary,
-    textAlign: 'center',
-    marginTop: Spacing.sm,
-  },
-});
