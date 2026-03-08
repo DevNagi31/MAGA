@@ -7,6 +7,7 @@ import {
   TextInput,
   Pressable,
   Alert,
+  Modal,
 } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import Feather from 'react-native-vector-icons/Feather';
@@ -27,6 +28,7 @@ export default function ScanResultsScreen({ navigation }) {
   const [editingId, setEditingId] = useState(null);
   const [editName, setEditName] = useState('');
   const [editAmount, setEditAmount] = useState('');
+  const [showGroupPicker, setShowGroupPicker] = useState(false);
 
   const total = items.reduce((s, i) => s + i.amount, 0);
 
@@ -70,11 +72,32 @@ export default function ScanResultsScreen({ navigation }) {
       Alert.alert('No Groups', 'Create a group first to split this bill.');
       return;
     }
-    // Navigate to groups with prefilled data
-    navigation.navigate('Split', {
-      screen: 'GroupsList',
-    });
+    if (groups.length === 1) {
+      clearScan();
+      navigation.navigate('Split', {
+        screen: 'AddBill',
+        params: {
+          groupId: groups[0].id,
+          prefilledItems: items,
+          prefilledDescription: `Receipt - ${items.length} items`,
+        },
+      });
+      return;
+    }
+    setShowGroupPicker(true);
+  };
+
+  const handleGroupSelect = (group) => {
+    setShowGroupPicker(false);
     clearScan();
+    navigation.navigate('Split', {
+      screen: 'AddBill',
+      params: {
+        groupId: group.id,
+        prefilledItems: items,
+        prefilledDescription: `Receipt - ${items.length} items`,
+      },
+    });
   };
 
   return (
@@ -161,6 +184,31 @@ export default function ScanResultsScreen({ navigation }) {
 
         <View style={{ height: 40 }} />
       </ScrollView>
+
+      {/* Group picker modal */}
+      <Modal visible={showGroupPicker} transparent animationType="slide" onRequestClose={() => setShowGroupPicker(false)}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalCard}>
+            <Text style={styles.modalTitle}>Split with which group?</Text>
+            {groups.map((group) => (
+              <Pressable
+                key={group.id}
+                style={({ pressed }) => [styles.groupRow, { opacity: pressed ? 0.8 : 1 }]}
+                onPress={() => handleGroupSelect(group)}
+              >
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.groupRowName}>{group.name}</Text>
+                  <Text style={styles.groupRowMeta}>{group.members.length} members</Text>
+                </View>
+                <Feather name="chevron-right" size={16} color={Colors.textTertiary} />
+              </Pressable>
+            ))}
+            <Pressable style={({ pressed }) => [styles.modalCancel, pressed && { opacity: 0.6 }]} onPress={() => setShowGroupPicker(false)}>
+              <Text style={styles.modalCancelText}>Cancel</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -295,4 +343,22 @@ const styles = StyleSheet.create({
     gap: Spacing.sm,
     marginTop: Spacing.md,
   },
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'flex-end' },
+  modalCard: {
+    backgroundColor: Colors.card,
+    borderTopLeftRadius: Radius.xl, borderTopRightRadius: Radius.xl,
+    padding: Spacing.xl, gap: Spacing.md,
+    borderTopWidth: 1, borderColor: Colors.border,
+  },
+  modalTitle: { fontSize: 18, fontWeight: '700', color: Colors.textPrimary },
+  groupRow: {
+    flexDirection: 'row', alignItems: 'center', gap: Spacing.md,
+    paddingVertical: Spacing.md, paddingHorizontal: Spacing.base,
+    backgroundColor: Colors.cardElevated, borderRadius: Radius.md,
+    borderWidth: 1, borderColor: Colors.border,
+  },
+  groupRowName: { fontSize: 15, fontWeight: '600', color: Colors.textPrimary },
+  groupRowMeta: { fontSize: 12, color: Colors.textTertiary, marginTop: 2 },
+  modalCancel: { alignItems: 'center', paddingVertical: Spacing.sm },
+  modalCancelText: { fontSize: 14, color: Colors.textTertiary },
 });

@@ -21,7 +21,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import { Colors, Spacing, Radius } from '../../constants/theme';
 import { useOCRStore } from '../../context/store';
-import { getMockReceiptItems, parseReceiptText } from '../../utils/ocrParser';
+import { getMockReceiptItems } from '../../utils/ocrParser';
+import { runVisionOCR } from '../../utils/visionOCR';
 import ScanOverlay from '../../components/ScanOverlay';
 import PremiumButton from '../../components/PremiumButton';
 import { useHaptic } from '../../hooks/useHaptic';
@@ -35,25 +36,36 @@ export default function ScanScreen({ navigation }) {
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState(0);
 
-  const simulateOCR = async (imageUri) => {
+  const processImage = async (base64Image, useMock = false) => {
     setIsProcessing(true);
     setIsScanning(true);
     medium();
 
-    for (let i = 0; i <= 100; i += 10) {
-      await new Promise((r) => setTimeout(r, 80));
+    // Animate progress to 80% while waiting for API
+    for (let i = 0; i <= 80; i += 10) {
+      await new Promise((r) => setTimeout(r, 60));
       setProgress(i);
       setScanProgress(i);
     }
 
-    hapticSuccess();
+    try {
+      const { items, total } = useMock
+        ? getMockReceiptItems()
+        : await runVisionOCR(base64Image);
 
-    const { items, total } = getMockReceiptItems();
-    setScannedItems(items, total);
-    setIsScanning(false);
-    setIsProcessing(false);
-
-    navigation.navigate('ScanResults');
+      setProgress(100);
+      setScanProgress(100);
+      hapticSuccess();
+      setScannedItems(items, total);
+      navigation.navigate('ScanResults');
+    } catch (err) {
+      Alert.alert('Scan Failed', err.message || 'Could not read receipt. Try again.');
+    } finally {
+      setIsScanning(false);
+      setIsProcessing(false);
+      setProgress(0);
+      setScanProgress(0);
+    }
   };
 
   const requestCameraPermission = async () => {
@@ -77,28 +89,30 @@ export default function ScanScreen({ navigation }) {
       return;
     }
     launchCamera(
-      { mediaType: 'photo', quality: 0.8 },
+      { mediaType: 'photo', quality: 0.8, includeBase64: true, maxWidth: 1600, maxHeight: 2400 },
       (response) => {
-        if (!response.didCancel && !response.errorCode && response.assets?.[0]) {
-          simulateOCR(response.assets[0].uri);
-        }
+        if (response.didCancel || response.errorCode) return;
+        const base64 = response.assets?.[0]?.base64;
+        if (!base64) { Alert.alert('Error', 'Could not get image data. Try again.'); return; }
+        processImage(base64.replace(/^data:image\/\w+;base64,/, ''));
       }
     );
   };
 
   const handleGallery = async () => {
     launchImageLibrary(
-      { mediaType: 'photo', quality: 0.8 },
+      { mediaType: 'photo', quality: 0.8, includeBase64: true, maxWidth: 1600, maxHeight: 2400 },
       (response) => {
-        if (!response.didCancel && !response.errorCode && response.assets?.[0]) {
-          simulateOCR(response.assets[0].uri);
-        }
+        if (response.didCancel || response.errorCode) return;
+        const base64 = response.assets?.[0]?.base64;
+        if (!base64) { Alert.alert('Error', 'Could not get image data. Try again.'); return; }
+        processImage(base64.replace(/^data:image\/\w+;base64,/, ''));
       }
     );
   };
 
   const handleDemo = () => {
-    simulateOCR(null);
+    processImage(null, true);
   };
 
   return (

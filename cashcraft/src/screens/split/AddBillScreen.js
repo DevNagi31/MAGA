@@ -23,7 +23,7 @@ import { formatCurrency } from '../../utils/formatters';
 const SPLIT_METHODS = ['Equal', 'Custom', 'Percentage'];
 
 export default function AddBillScreen({ navigation, route }) {
-  const { groupId, prefilledItems } = route.params || {};
+  const { groupId, prefilledItems, prefilledDescription } = route.params || {};
   const group = useGroupStore((s) => s.groups.find((g) => g.id === groupId));
   const addBillToGroup = useGroupStore((s) => s.addBillToGroup);
   const { success, light } = useHaptic();
@@ -31,7 +31,7 @@ export default function AddBillScreen({ navigation, route }) {
   const [amount, setAmount] = useState(
     prefilledItems ? prefilledItems.reduce((s, i) => s + i.amount, 0).toFixed(2) : ''
   );
-  const [description, setDescription] = useState('');
+  const [description, setDescription] = useState(prefilledDescription || '');
   const [paidBy, setPaidBy] = useState(group?.members[0]?.id || '');
   const [splitMethod, setSplitMethod] = useState('Equal');
   const [customAmounts, setCustomAmounts] = useState({});
@@ -78,7 +78,11 @@ export default function AddBillScreen({ navigation, route }) {
       paidBy,
       splits,
     });
-    navigation.goBack();
+    if (prefilledItems) {
+      navigation.navigate('GroupsList');
+    } else {
+      navigation.goBack();
+    }
   };
 
   if (!group) return null;
@@ -113,7 +117,7 @@ export default function AddBillScreen({ navigation, route }) {
             {group.members.map((member) => (
               <Pressable
                 key={member.id}
-                style={[styles.payerChip, paidBy === member.id && styles.payerChipActive]}
+                style={({ pressed }) => [styles.payerChip, paidBy === member.id && styles.payerChipActive, pressed && { opacity: 0.7 }]}
                 onPress={() => { light(); setPaidBy(member.id); }}
               >
                 <MemberAvatar name={member.name} color={member.color} size={28} />
@@ -132,7 +136,7 @@ export default function AddBillScreen({ navigation, route }) {
             {SPLIT_METHODS.map((m) => (
               <Pressable
                 key={m}
-                style={[styles.methodChip, splitMethod === m && styles.methodChipActive]}
+                style={({ pressed }) => [styles.methodChip, splitMethod === m && styles.methodChipActive, pressed && { opacity: 0.7 }]}
                 onPress={() => { light(); setSplitMethod(m); }}
               >
                 <Text style={[styles.methodText, splitMethod === m && styles.methodTextActive]}>

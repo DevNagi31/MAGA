@@ -1,6 +1,3 @@
-/**
- * Parses raw OCR text from a receipt into structured line items.
- */
 export const parseReceiptText = (rawText) => {
   if (!rawText) return { items: [], total: null };
 
@@ -50,7 +47,6 @@ export const parseReceiptText = (rawText) => {
   return { items, total };
 };
 
-// Mock OCR result
 export const getMockReceiptItems = () => ({
   items: [
     { id: 'item-1', name: "Margherita Pizza", amount: 14.99, assigned: null },
@@ -60,3 +56,34 @@ export const getMockReceiptItems = () => ({
   ],
   total: 32.99,
 });
+
+export const runVisionOCR = async (base64Image) => {
+  const API_KEY = 'AIzaSyBS0IrA69fifurWa2vf-93ALRfeTaQRqgY';
+  const url = `https://vision.googleapis.com/v1/images:annotate?key=${API_KEY}`;
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      requests: [{
+        image: { content: base64Image },
+        features: [{ type: 'TEXT_DETECTION', maxResults: 1 }],
+      }],
+    }),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok || data.error) {
+    const msg = data.error?.message || `API error ${response.status}`;
+    throw new Error(msg);
+  }
+
+  const rawText = data.responses?.[0]?.fullTextAnnotation?.text || '';
+  if (!rawText) throw new Error('No text detected in image. Try a clearer photo.');
+
+  const result = parseReceiptText(rawText);
+  if (result.items.length === 0) throw new Error('Could not find any line items. Try a clearer photo of the receipt.');
+
+  return result;
+};

@@ -45,6 +45,7 @@ const PremiumButton = ({
 
   const textStyle = [
     styles.label,
+    variant === 'primary' && { color: '#050505', fontWeight: '700' },
     variant === 'secondary' && { color: Colors.accent },
     variant === 'ghost' && { color: Colors.textSecondary },
     variant === 'danger' && { color: Colors.danger },
@@ -67,24 +68,19 @@ const PremiumButton = ({
   if (variant === 'primary') {
     return (
       <AnimatedPressable
-        style={[animatedStyle, fullWidth && styles.fullWidth, style]}
+        style={[animatedStyle, fullWidth && styles.fullWidth, (disabled || loading) && styles.disabled, style]}
         onPress={onPress}
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
         disabled={disabled || loading}
       >
         <LinearGradient
-          colors={disabled || loading ? ['#1A1A1A', '#1A1A1A'] : ['#34D399', '#10B981']}
+          colors={['#34D399', '#10B981']}
           style={[styles.base, styles.gradient]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
         >
-          {icon && !loading ? icon : null}
-          {loading ? (
-            <ActivityIndicator color="#050505" size="small" />
-          ) : (
-            <Text style={[styles.label, { color: '#050505', fontWeight: '700' }]}>{label}</Text>
-          )}
+          {content}
         </LinearGradient>
       </AnimatedPressable>
     );

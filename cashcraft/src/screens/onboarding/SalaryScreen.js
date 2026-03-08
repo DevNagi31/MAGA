@@ -50,7 +50,7 @@ export default function SalaryScreen({ navigation }) {
 
   return (
     <View style={[styles.container, { paddingTop: insets.top + 20, paddingBottom: insets.bottom }]}>
-      <Pressable style={styles.backButton} onPress={() => navigation.goBack()}>
+      <Pressable style={({ pressed }) => [styles.backButton, pressed && { opacity: 0.6 }]} onPress={() => navigation.goBack()}>
         <Feather name="arrow-left" size={22} color={Colors.textSecondary} />
       </Pressable>
 
@@ -68,9 +68,10 @@ export default function SalaryScreen({ navigation }) {
           {PRESETS.map((preset) => (
             <Pressable
               key={preset}
-              style={[
+              style={({ pressed }) => [
                 styles.presetChip,
                 amount === preset.toString() && styles.presetChipActive,
+                pressed && { opacity: 0.7 },
               ]}
               onPress={() => handlePreset(preset)}
             >

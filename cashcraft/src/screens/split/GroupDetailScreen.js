@@ -225,7 +225,7 @@ export default function GroupDetailScreen({ navigation, route }) {
               <Text style={styles.sectionLabel}>Who owes whom</Text>
               <Pressable
                 onPress={() => { light(); navigation.navigate('SettleUp', { groupId }); }}
-                style={styles.settleBtn}
+                style={({ pressed }) => [styles.settleBtn, pressed && { opacity: 0.7 }]}
               >
                 <Text style={styles.settleBtnText}>Settle Up</Text>
               </Pressable>
@@ -254,7 +254,7 @@ export default function GroupDetailScreen({ navigation, route }) {
             <Text style={styles.sectionLabel}>Bills ({unsettledBills.length})</Text>
             <Pressable
               onPress={() => { light(); navigation.navigate('AddBill', { groupId }); }}
-              style={styles.addBillBtn}
+              style={({ pressed }) => [styles.addBillBtn, pressed && { opacity: 0.7 }]}
             >
               <Feather name="plus" size={16} color={Colors.accent} />
               <Text style={styles.addBillText}>Add Bill</Text>

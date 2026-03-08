@@ -221,7 +221,7 @@ export default function HomeScreen({ navigation }) {
       backgroundColor: Colors.cardElevated, borderRadius: Radius.md,
       borderWidth: 1, borderColor: Colors.border,
     },
-    groupRowName: { flex: 1, fontSize: 15, fontWeight: '600', color: Colors.textPrimary },
+    groupRowName: { fontSize: 15, fontWeight: '600', color: Colors.textPrimary },
     groupRowMeta: { fontSize: 12, color: Colors.textTertiary, marginTop: 2 },
     modalCancel: { alignItems: 'center', paddingVertical: Spacing.sm },
     modalCancelText: { fontSize: 14, color: Colors.textTertiary },
@@ -375,6 +375,14 @@ export default function HomeScreen({ navigation }) {
         <View style={{ height: 130 }} />
       </ScrollView>
 
+      {/* Backdrop when FAB open — rendered BEFORE fabWrap so buttons are on top */}
+      {fabOpen && (
+        <Pressable
+          style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
+          onPress={() => { setFabOpen(false); fabRotate.value = withSpring(0); }}
+        />
+      )}
+
       {/* FAB with expandable actions */}
       <View style={styles.fabWrap}>
         {fabOpen && (
@@ -403,14 +411,6 @@ export default function HomeScreen({ navigation }) {
         </AnimatedPressable>
       </View>
 
-      {/* Backdrop when FAB open */}
-      {fabOpen && (
-        <Pressable
-          style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
-          onPress={() => { setFabOpen(false); fabRotate.value = withSpring(0); }}
-        />
-      )}
-
       {/* Group picker modal for group expense */}
       <Modal visible={showGroupPicker} transparent animationType="slide" onRequestClose={() => setShowGroupPicker(false)}>
         <View style={styles.modalOverlay}>
@@ -436,7 +436,7 @@ export default function HomeScreen({ navigation }) {
                 <Feather name="chevron-right" size={16} color={Colors.textTertiary} />
               </Pressable>
             ))}
-            <Pressable style={styles.modalCancel} onPress={() => setShowGroupPicker(false)}>
+            <Pressable style={({ pressed }) => [styles.modalCancel, pressed && { opacity: 0.6 }]} onPress={() => setShowGroupPicker(false)}>
               <Text style={styles.modalCancelText}>Cancel</Text>
             </Pressable>
           </View>

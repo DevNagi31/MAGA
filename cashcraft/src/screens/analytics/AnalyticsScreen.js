@@ -176,7 +176,7 @@ export default function AnalyticsScreen() {
     scroll: {
       paddingHorizontal: Spacing.base,
       paddingTop: Spacing.base,
-      gap: Spacing.lg,
+      gap: Spacing.xxl,
     },
     header: {
       gap: 2,
@@ -256,7 +256,7 @@ export default function AnalyticsScreen() {
       fontSize: 17,
       fontWeight: '700',
       color: Colors.textPrimary,
-      marginBottom: -Spacing.xs,
+      marginBottom: Spacing.md,
     },
     budgetCard: {
       gap: Spacing.base,
@@ -497,7 +497,7 @@ export default function AnalyticsScreen() {
           {['personal', 'splits'].map((t) => (
             <Pressable
               key={t}
-              style={[styles.tabButton, tab === t && styles.tabButtonActive]}
+              style={({ pressed }) => [styles.tabButton, tab === t && styles.tabButtonActive, pressed && { opacity: 0.7 }]}
               onPress={() => { light(); setTab(t); }}
             >
               <Text style={[styles.tabButtonText, tab === t && styles.tabButtonTextActive]}>
@@ -586,7 +586,7 @@ export default function AnalyticsScreen() {
                     <Text style={styles.trendsRowLabel}>This week</Text>
                     <Text style={styles.trendsRowAmount}>{formatCurrency(thisWeekTotal)}</Text>
                   </View>
-                  <View style={styles.trendsRow}>
+                  <View style={[styles.trendsRow, { flex: 1 }]}>
                     <View style={{ flex: 1 }}>
                       <Text style={styles.trendsRowLabel}>Last week</Text>
                       <Text style={styles.trendsRowAmount}>{formatCurrency(lastWeekTotal)}</Text>

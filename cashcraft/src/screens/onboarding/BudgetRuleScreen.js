@@ -79,7 +79,7 @@ export default function BudgetRuleScreen({ navigation }) {
 
   return (
     <View style={[styles.container, { paddingTop: insets.top + 20, paddingBottom: insets.bottom }]}>
-      <Pressable style={styles.backButton} onPress={() => navigation.goBack()}>
+      <Pressable style={({ pressed }) => [styles.backButton, pressed && { opacity: 0.6 }]} onPress={() => navigation.goBack()}>
         <Feather name="arrow-left" size={22} color={Colors.textSecondary} />
       </Pressable>
 
@@ -122,7 +122,7 @@ export default function BudgetRuleScreen({ navigation }) {
         {BUDGET_RULES.map((r, i) => (
           <Animated.View key={r.id} entering={FadeInDown.delay(i * 80).springify()}>
             <Pressable
-              style={[styles.ruleCard, selected.id === r.id && styles.ruleCardActive]}
+              style={({ pressed }) => [styles.ruleCard, selected.id === r.id && styles.ruleCardActive, pressed && { opacity: 0.7 }]}
               onPress={() => handleSelect(r)}
             >
               <Text style={[styles.ruleLabel, selected.id === r.id && { color: Colors.accent }]}>

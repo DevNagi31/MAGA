@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
   Pressable,
-  TextInput,
   Alert,
   Switch,
 } from 'react-native';
@@ -15,7 +14,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Spacing, Radius, BUDGET_RULES } from '../../constants/theme';
 import { useBudgetStore, useExpenseStore, useGroupStore, useAppStore } from '../../context/store';
 import GlassCard from '../../components/GlassCard';
-import PremiumButton from '../../components/PremiumButton';
 import { useHaptic } from '../../hooks/useHaptic';
 import { useColors } from '../../hooks/useColors';
 
@@ -23,18 +21,13 @@ export default function SettingsScreen() {
   const Colors = useColors();
   const insets = useSafeAreaInsets();
   const { warning } = useHaptic();
-  const { salary, setSalary, budgetRule, setBudgetRule } = useBudgetStore();
-  const { themeMode, setThemeMode } = useAppStore();
-  const [editingSalary, setEditingSalary] = useState(false);
-  const [salaryInput, setSalaryInput] = useState(salary?.toString() || '');
+  const budgetRule = useBudgetStore((s) => s.budgetRule);
+  const setBudgetRule = useBudgetStore((s) => s.setBudgetRule);
+  const themeMode = useAppStore((s) => s.themeMode);
+  const setThemeMode = useAppStore((s) => s.setThemeMode);
+  const monthlyIncome = useBudgetStore((s) => s.salary);
 
   const isDark = themeMode === 'dark';
-
-  const handleSaveSalary = () => {
-    const val = parseFloat(salaryInput);
-    if (val > 0) setSalary(val);
-    setEditingSalary(false);
-  };
 
   const handleClearData = () => {
     Alert.alert(
@@ -49,7 +42,6 @@ export default function SettingsScreen() {
             warning();
             useExpenseStore.setState({ expenses: [] });
             useGroupStore.setState({ groups: [] });
-            useBudgetStore.setState({ salary: 0 });
             useAppStore.setState({ isOnboarded: false });
           },
         },
@@ -115,31 +107,6 @@ export default function SettingsScreen() {
       height: 1,
       backgroundColor: Colors.border,
       marginHorizontal: Spacing.base,
-    },
-    editSalaryRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      padding: Spacing.base,
-      gap: Spacing.sm,
-    },
-    dollarSign: {
-      fontSize: 20,
-      color: Colors.accent,
-      fontWeight: '600',
-    },
-    salaryInput: {
-      flex: 1,
-      fontSize: 20,
-      fontWeight: '700',
-      color: Colors.textPrimary,
-    },
-    saveSalaryBtn: {
-      width: 36,
-      height: 36,
-      borderRadius: 18,
-      backgroundColor: Colors.accent,
-      alignItems: 'center',
-      justifyContent: 'center',
     },
     ruleSection: {
       padding: Spacing.base,
@@ -225,7 +192,7 @@ export default function SettingsScreen() {
   });
 
   const SettingRow = ({ icon, label, value, onPress, danger = false }) => (
-    <Pressable style={styles.settingRow} onPress={onPress}>
+    <Pressable style={({ pressed }) => [styles.settingRow, onPress && pressed && { opacity: 0.7 }]} onPress={onPress}>
       <View style={[styles.settingIcon, danger && { backgroundColor: 'rgba(239,68,68,0.12)' }]}>
         <Feather name={icon} size={16} color={danger ? Colors.danger : Colors.accent} />
       </View>
@@ -266,29 +233,11 @@ export default function SettingsScreen() {
         <Animated.View entering={FadeInDown.delay(50).springify()}>
           <Text style={styles.sectionLabel}>Budget</Text>
           <GlassCard style={styles.settingsGroup}>
-            {editingSalary ? (
-              <View style={styles.editSalaryRow}>
-                <Text style={styles.dollarSign}>$</Text>
-                <TextInput
-                  style={styles.salaryInput}
-                  value={salaryInput}
-                  onChangeText={setSalaryInput}
-                  keyboardType="decimal-pad"
-                  autoFocus
-                  selectTextOnFocus
-                />
-                <Pressable style={styles.saveSalaryBtn} onPress={handleSaveSalary}>
-                  <Feather name="check" size={18} color="#050505" />
-                </Pressable>
-              </View>
-            ) : (
-              <SettingRow
-                icon="dollar-sign"
-                label="Monthly Income"
-                value={`$${salary?.toLocaleString()}`}
-                onPress={() => { setEditingSalary(true); setSalaryInput(salary?.toString()); }}
-              />
-            )}
+            <SettingRow
+              icon="trending-up"
+              label="This Month's Income"
+              value={`$${monthlyIncome.toLocaleString()}`}
+            />
 
             <View style={styles.separator} />
 
@@ -298,15 +247,16 @@ export default function SettingsScreen() {
                 {BUDGET_RULES.filter((r) => r.id !== 'custom').map((rule) => (
                   <Pressable
                     key={rule.id}
-                    style={[
+                    style={({ pressed }) => [
                       styles.ruleChip,
-                      budgetRule.id === rule.id && styles.ruleChipActive,
+                      budgetRule?.id === rule.id && styles.ruleChipActive,
+                      pressed && { opacity: 0.7 },
                     ]}
                     onPress={() => setBudgetRule(rule)}
                   >
                     <Text style={[
                       styles.ruleChipText,
-                      budgetRule.id === rule.id && { color: Colors.accent },
+                      budgetRule?.id === rule.id && { color: Colors.accent },
                     ]}>
                       {rule.label}
                     </Text>

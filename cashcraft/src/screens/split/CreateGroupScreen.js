@@ -219,7 +219,7 @@ export default function CreateGroupScreen({ navigation }) {
                   <Text style={styles.noZelle}>No Zelle ID</Text>
                 )}
               </View>
-              <Pressable onPress={() => removeMember(member.id)} style={styles.removeBtn}>
+              <Pressable onPress={() => removeMember(member.id)} style={({ pressed }) => [styles.removeBtn, pressed && { opacity: 0.6 }]}>
                 <Feather name="x" size={16} color={Colors.textTertiary} />
               </Pressable>
             </View>
@@ -239,7 +239,7 @@ export default function CreateGroupScreen({ navigation }) {
                 maxLength={30}
               />
               <Pressable
-                style={[styles.addBtn, !newMemberName.trim() && styles.addBtnDisabled]}
+                style={({ pressed }) => [styles.addBtn, !newMemberName.trim() && styles.addBtnDisabled, pressed && !(!newMemberName.trim()) && { opacity: 0.7 }]}
                 onPress={addMember}
                 disabled={!newMemberName.trim()}
               >
@@ -261,7 +261,7 @@ export default function CreateGroupScreen({ navigation }) {
               />
             ) : (
               <Pressable
-                style={styles.addZelleLink}
+                style={({ pressed }) => [styles.addZelleLink, pressed && { opacity: 0.6 }]}
                 onPress={() => setShowZelleInput(true)}
               >
                 <Feather name="zap" size={12} color={Colors.textTertiary} />
