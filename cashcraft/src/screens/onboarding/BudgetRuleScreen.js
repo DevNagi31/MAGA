@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { G, Path, Circle } from 'react-native-svg';
-import { Feather } from '@expo/vector-icons';
+import Feather from '@react-native-vector-icons/feather';
 import { Spacing, Radius, BUDGET_RULES } from '../../constants/theme';
 import { useBudgetStore } from '../../context/store';
 import PremiumButton from '../../components/PremiumButton';

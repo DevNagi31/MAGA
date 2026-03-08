@@ -13,7 +13,7 @@ import { groupExpensesByDate, formatCurrency } from '../../utils/formatters';
 import CategoryChip from '../../components/CategoryChip';
 import ExpenseItem from '../../components/ExpenseItem';
 import GlassCard from '../../components/GlassCard';
-import { Feather } from '@expo/vector-icons';
+import Feather from '@react-native-vector-icons/feather';
 import { useColors } from '../../hooks/useColors';
 
 const ALL_CAT = { id: 'all', label: 'All', icon: 'grid', color: '#8E8E93' };

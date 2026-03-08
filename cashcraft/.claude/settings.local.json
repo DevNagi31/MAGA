@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(\"c:\\\\Users\\\\Sharvari Salgaonkar\\\\Desktop\\\\WEB:*)",
+      "Bash(npm install --save-dev @react-native/babel-preset)"
+    ]
+  }
+}

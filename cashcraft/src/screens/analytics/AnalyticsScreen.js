@@ -8,7 +8,7 @@ import {
   Dimensions,
 } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
-import { Feather } from '@expo/vector-icons';
+import Feather from '@react-native-vector-icons/feather';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { G, Circle, Text as SvgText } from 'react-native-svg';
 import { Spacing, Radius, CategoryColors, CATEGORIES } from '../../constants/theme';

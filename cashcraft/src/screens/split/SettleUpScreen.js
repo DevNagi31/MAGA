@@ -11,8 +11,8 @@ import {
   Alert,
 } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
-import { LinearGradient } from 'expo-linear-gradient';
-import { Feather } from '@expo/vector-icons';
+import LinearGradient from 'react-native-linear-gradient';
+import Feather from '@react-native-vector-icons/feather';
 import { Spacing, Radius } from '../../constants/theme';
 import { useGroupStore } from '../../context/store';
 import { simplifyDebts } from '../../utils/debtSimplifier';

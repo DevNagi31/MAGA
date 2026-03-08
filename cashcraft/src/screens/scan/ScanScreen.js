@@ -14,10 +14,10 @@ import Animated, {
   withSpring,
   FadeInDown,
 } from 'react-native-reanimated';
-import { LinearGradient } from 'expo-linear-gradient';
-import { Feather } from '@expo/vector-icons';
+import LinearGradient from 'react-native-linear-gradient';
+import Feather from '@react-native-vector-icons/feather';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import * as ImagePicker from 'expo-image-picker';
+import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import { Spacing, Radius } from '../../constants/theme';
 import { useOCRStore } from '../../context/store';
 import { getMockReceiptItems } from '../../utils/ocrParser';
@@ -88,19 +88,16 @@ export default function ScanScreen({ navigation }) {
   };
 
   const handleCamera = async () => {
-    const { status } = await ImagePicker.requestCameraPermissionsAsync();
-    if (status !== 'granted') {
-      Alert.alert('Permission needed', 'Camera access is required to scan receipts.');
-      return;
-    }
     try {
-      const result = await ImagePicker.launchCameraAsync({
-        mediaTypes: 'images',
+      const result = await launchCamera({
+        mediaType: 'photo',
         quality: 0.8,
-        base64: true,
+        includeBase64: true,
       });
-      if (!result.canceled) {
+      if (!result.didCancel && !result.errorCode) {
         runOCR(result.assets[0].base64);
+      } else if (result.errorCode === 'permission') {
+        Alert.alert('Permission needed', 'Camera access is required to scan receipts.');
       }
     } catch (e) {
       Alert.alert(
@@ -112,19 +109,16 @@ export default function ScanScreen({ navigation }) {
   };
 
   const handleGallery = async () => {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== 'granted') {
-      Alert.alert('Permission needed', 'Photo library access is required to pick a receipt.');
-      return;
-    }
     try {
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: 'images',
+      const result = await launchImageLibrary({
+        mediaType: 'photo',
         quality: 0.8,
-        base64: true,
+        includeBase64: true,
       });
-      if (!result.canceled) {
+      if (!result.didCancel && !result.errorCode) {
         runOCR(result.assets[0].base64);
+      } else if (result.errorCode === 'permission') {
+        Alert.alert('Permission needed', 'Photo library access is required to pick a receipt.');
       }
     } catch (e) {
       Alert.alert('Error', 'Could not open photo library. Try the Demo scan instead.');

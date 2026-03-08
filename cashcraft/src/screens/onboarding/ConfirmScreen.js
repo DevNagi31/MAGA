@@ -8,8 +8,8 @@ import Animated, {
   withTiming,
   withSequence,
 } from 'react-native-reanimated';
-import { LinearGradient } from 'expo-linear-gradient';
-import { Feather } from '@expo/vector-icons';
+import LinearGradient from 'react-native-linear-gradient';
+import Feather from '@react-native-vector-icons/feather';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Spacing } from '../../constants/theme';
 import { useAppStore, useBudgetStore } from '../../context/store';

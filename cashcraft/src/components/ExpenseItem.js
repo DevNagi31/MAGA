@@ -7,7 +7,7 @@ import Animated, {
   withTiming,
   FadeInDown,
 } from 'react-native-reanimated';
-import { Feather } from '@expo/vector-icons';
+import Feather from '@react-native-vector-icons/feather';
 import { CategoryColors, CategoryIcons, Spacing, Radius } from '../constants/theme';
 import { formatCurrency, formatTime } from '../utils/formatters';
 import { useColors } from '../hooks/useColors';

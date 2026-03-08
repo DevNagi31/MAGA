@@ -10,7 +10,7 @@ import {
   Switch,
 } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
-import { Feather } from '@expo/vector-icons';
+import Feather from '@react-native-vector-icons/feather';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Spacing, Radius, BUDGET_RULES } from '../../constants/theme';
 import { useBudgetStore, useExpenseStore, useGroupStore, useAppStore } from '../../context/store';

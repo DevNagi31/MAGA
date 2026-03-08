@@ -10,7 +10,7 @@ import {
   Modal,
 } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
-import { Feather } from '@expo/vector-icons';
+import Feather from '@react-native-vector-icons/feather';
 import { Spacing, Radius } from '../../constants/theme';
 import { useOCRStore, useExpenseStore, useGroupStore } from '../../context/store';
 import { formatCurrency } from '../../utils/formatters';
