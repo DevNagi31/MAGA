@@ -7,15 +7,13 @@ import Animated, {
   withTiming,
   FadeInDown,
 } from 'react-native-reanimated';
-import { Feather } from '@expo/vector-icons';
-import { CategoryColors, CategoryIcons, Spacing, Radius } from '../constants/theme';
+import Feather from 'react-native-vector-icons/Feather';
+import { Colors, CategoryColors, CategoryIcons, Spacing, Radius } from '../constants/theme';
 import { formatCurrency, formatTime } from '../utils/formatters';
-import { useColors } from '../hooks/useColors';
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 const ExpenseItem = ({ expense, onDelete, index = 0 }) => {
-  const Colors = useColors();
   const scale = useSharedValue(1);
   const opacity = useSharedValue(1);
   const color = CategoryColors[expense.category] || CategoryColors.other;
@@ -38,52 +36,6 @@ const ExpenseItem = ({ expense, onDelete, index = 0 }) => {
     scale.value = withTiming(0.9, { duration: 250 });
     setTimeout(() => onDelete && onDelete(expense.id), 250);
   };
-
-  const styles = StyleSheet.create({
-    container: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      backgroundColor: Colors.card,
-      borderRadius: Radius.md,
-      borderWidth: 1,
-      borderColor: Colors.border,
-      marginBottom: Spacing.sm,
-      overflow: 'hidden',
-    },
-    leftBorder: {
-      width: 3,
-      alignSelf: 'stretch',
-    },
-    iconWrap: {
-      width: 36,
-      height: 36,
-      borderRadius: Radius.sm,
-      alignItems: 'center',
-      justifyContent: 'center',
-      marginLeft: Spacing.md,
-      marginRight: Spacing.md,
-      marginVertical: Spacing.md,
-    },
-    info: {
-      flex: 1,
-      gap: 2,
-    },
-    description: {
-      fontSize: 15,
-      fontWeight: '500',
-      color: Colors.textPrimary,
-    },
-    time: {
-      fontSize: 12,
-      color: Colors.textTertiary,
-    },
-    amount: {
-      fontSize: 15,
-      fontWeight: '600',
-      color: Colors.textPrimary,
-      marginRight: Spacing.base,
-    },
-  });
 
   return (
     <Animated.View
@@ -113,5 +65,51 @@ const ExpenseItem = ({ expense, onDelete, index = 0 }) => {
     </Animated.View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.card,
+    borderRadius: Radius.md,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    marginBottom: Spacing.sm,
+    overflow: 'hidden',
+  },
+  leftBorder: {
+    width: 3,
+    alignSelf: 'stretch',
+  },
+  iconWrap: {
+    width: 36,
+    height: 36,
+    borderRadius: Radius.sm,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: Spacing.md,
+    marginRight: Spacing.md,
+    marginVertical: Spacing.md,
+  },
+  info: {
+    flex: 1,
+    gap: 2,
+  },
+  description: {
+    fontSize: 15,
+    fontWeight: '500',
+    color: Colors.textPrimary,
+  },
+  time: {
+    fontSize: 12,
+    color: Colors.textTertiary,
+  },
+  amount: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: Colors.textPrimary,
+    marginRight: Spacing.base,
+  },
+});
 
 export default ExpenseItem;

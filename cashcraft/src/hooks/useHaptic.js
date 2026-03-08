@@ -1,13 +1,15 @@
-import * as Haptics from 'expo-haptics';
+import HapticFeedback from 'react-native-haptic-feedback';
+
+const options = { enableVibrateFallback: true, ignoreAndroidSystemSettings: false };
 
 export const useHaptic = () => {
-  const light = () => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-  const medium = () => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-  const heavy = () => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-  const success = () => Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-  const warning = () => Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
-  const error = () => Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
-  const selection = () => Haptics.selectionAsync();
+  const light = () => HapticFeedback.trigger('impactLight', options);
+  const medium = () => HapticFeedback.trigger('impactMedium', options);
+  const heavy = () => HapticFeedback.trigger('impactHeavy', options);
+  const success = () => HapticFeedback.trigger('notificationSuccess', options);
+  const warning = () => HapticFeedback.trigger('notificationWarning', options);
+  const error = () => HapticFeedback.trigger('notificationError', options);
+  const selection = () => HapticFeedback.trigger('selection', options);
 
   return { light, medium, heavy, success, warning, error, selection };
 };

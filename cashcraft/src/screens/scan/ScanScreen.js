@@ -5,7 +5,8 @@ import {
   StyleSheet,
   Pressable,
   Alert,
-  Image,
+  PermissionsAndroid,
+  Platform,
   Dimensions,
 } from 'react-native';
 import Animated, {
@@ -14,229 +15,94 @@ import Animated, {
   withSpring,
   FadeInDown,
 } from 'react-native-reanimated';
-import { LinearGradient } from 'expo-linear-gradient';
-import { Feather } from '@expo/vector-icons';
+import LinearGradient from 'react-native-linear-gradient';
+import Feather from 'react-native-vector-icons/Feather';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import * as ImagePicker from 'expo-image-picker';
-import { Spacing, Radius } from '../../constants/theme';
+import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
+import { Colors, Spacing, Radius } from '../../constants/theme';
 import { useOCRStore } from '../../context/store';
-import { getMockReceiptItems } from '../../utils/ocrParser';
-import { runVisionOCR } from '../../utils/visionOCR';
+import { getMockReceiptItems, parseReceiptText } from '../../utils/ocrParser';
 import ScanOverlay from '../../components/ScanOverlay';
 import PremiumButton from '../../components/PremiumButton';
 import { useHaptic } from '../../hooks/useHaptic';
-import { useColors } from '../../hooks/useColors';
 
 const { width, height } = Dimensions.get('window');
 
 export default function ScanScreen({ navigation }) {
-  const Colors = useColors();
   const insets = useSafeAreaInsets();
   const { medium, success: hapticSuccess } = useHaptic();
   const { setScannedItems, setIsScanning, setScanProgress, clearScan } = useOCRStore();
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState(0);
 
-  const runOCR = async (base64Image) => {
+  const simulateOCR = async (imageUri) => {
     setIsProcessing(true);
     setIsScanning(true);
     medium();
 
-    // Animate progress while waiting for API
-    let tick = 0;
-    const progressInterval = setInterval(() => {
-      tick = Math.min(tick + 8, 90); // Go to 90% max, jump to 100 on complete
-      setProgress(tick);
-      setScanProgress(tick);
-    }, 150);
-
-    try {
-      let items, total;
-
-      if (base64Image) {
-        // Real OCR via Google Vision
-        const parsed = await runVisionOCR(base64Image);
-        items = parsed.items;
-        total = parsed.total ?? parsed.items.reduce((s, i) => s + i.amount, 0);
-      } else {
-        // Demo mode — mock data
-        await new Promise((r) => setTimeout(r, 1200));
-        ({ items, total } = getMockReceiptItems());
-      }
-
-      clearInterval(progressInterval);
-      setProgress(100);
-      setScanProgress(100);
-      hapticSuccess();
-
-      setScannedItems(items, total);
-    } catch (err) {
-      clearInterval(progressInterval);
-      // Fall back to mock data with an error notice
-      const { items, total } = getMockReceiptItems();
-      setScannedItems(items, total);
-      Alert.alert(
-        'OCR failed',
-        err.message || 'Could not read the receipt. Showing demo data instead.',
-        [{ text: 'OK' }]
-      );
-    } finally {
-      setIsScanning(false);
-      setIsProcessing(false);
-      navigation.navigate('ScanResults');
+    for (let i = 0; i <= 100; i += 10) {
+      await new Promise((r) => setTimeout(r, 80));
+      setProgress(i);
+      setScanProgress(i);
     }
+
+    hapticSuccess();
+
+    const { items, total } = getMockReceiptItems();
+    setScannedItems(items, total);
+    setIsScanning(false);
+    setIsProcessing(false);
+
+    navigation.navigate('ScanResults');
+  };
+
+  const requestCameraPermission = async () => {
+    if (Platform.OS !== 'android') return true;
+    const granted = await PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.CAMERA,
+      {
+        title: 'Camera Permission',
+        message: 'CashCraft needs access to your camera to scan receipts.',
+        buttonPositive: 'Allow',
+        buttonNegative: 'Deny',
+      }
+    );
+    return granted === PermissionsAndroid.RESULTS.GRANTED;
   };
 
   const handleCamera = async () => {
-    const { status } = await ImagePicker.requestCameraPermissionsAsync();
-    if (status !== 'granted') {
+    const hasPermission = await requestCameraPermission();
+    if (!hasPermission) {
       Alert.alert('Permission needed', 'Camera access is required to scan receipts.');
       return;
     }
-    try {
-      const result = await ImagePicker.launchCameraAsync({
-        mediaTypes: 'images',
-        quality: 0.8,
-        base64: true,
-      });
-      if (!result.canceled) {
-        runOCR(result.assets[0].base64);
+    launchCamera(
+      { mediaType: 'photo', quality: 0.8 },
+      (response) => {
+        if (!response.didCancel && !response.errorCode && response.assets?.[0]) {
+          simulateOCR(response.assets[0].uri);
+        }
       }
-    } catch (e) {
-      Alert.alert(
-        'Camera unavailable',
-        'Camera is not available on the simulator. Use Gallery or Demo scan instead.',
-        [{ text: 'OK' }]
-      );
-    }
+    );
   };
 
   const handleGallery = async () => {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== 'granted') {
-      Alert.alert('Permission needed', 'Photo library access is required to pick a receipt.');
-      return;
-    }
-    try {
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: 'images',
-        quality: 0.8,
-        base64: true,
-      });
-      if (!result.canceled) {
-        runOCR(result.assets[0].base64);
+    launchImageLibrary(
+      { mediaType: 'photo', quality: 0.8 },
+      (response) => {
+        if (!response.didCancel && !response.errorCode && response.assets?.[0]) {
+          simulateOCR(response.assets[0].uri);
+        }
       }
-    } catch (e) {
-      Alert.alert('Error', 'Could not open photo library. Try the Demo scan instead.');
-    }
+    );
   };
 
   const handleDemo = () => {
-    runOCR(null);
+    simulateOCR(null);
   };
-
-  const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: Colors.bg,
-    },
-    scanArea: {
-      flex: 1,
-      alignItems: 'center',
-      justifyContent: 'center',
-      backgroundColor: '#050505',
-      position: 'relative',
-    },
-    scanHint: {
-      alignItems: 'center',
-      gap: Spacing.md,
-      zIndex: 20,
-    },
-    scanHintText: {
-      fontSize: 15,
-      color: Colors.textSecondary,
-    },
-    progressContainer: {
-      alignItems: 'center',
-      gap: Spacing.md,
-      width: '60%',
-      zIndex: 20,
-    },
-    progressBar: {
-      width: '100%',
-      height: 4,
-      backgroundColor: Colors.border,
-      borderRadius: 2,
-      overflow: 'hidden',
-    },
-    progressFill: {
-      height: '100%',
-      backgroundColor: Colors.accent,
-      borderRadius: 2,
-    },
-    progressText: {
-      fontSize: 14,
-      color: Colors.textSecondary,
-    },
-    actions: {
-      backgroundColor: Colors.bg,
-      padding: Spacing.xl,
-      gap: Spacing.lg,
-      borderTopWidth: 1,
-      borderTopColor: Colors.border,
-    },
-    primaryActions: {
-      flexDirection: 'row',
-      justifyContent: 'space-around',
-    },
-    actionBtn: {
-      alignItems: 'center',
-      gap: Spacing.sm,
-    },
-    actionIcon: {
-      width: 64,
-      height: 64,
-      borderRadius: 20,
-      alignItems: 'center',
-      justifyContent: 'center',
-      shadowColor: Colors.accent,
-      shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.3,
-      shadowRadius: 12,
-      elevation: 8,
-    },
-    actionIconSecondary: {
-      width: 64,
-      height: 64,
-      borderRadius: 20,
-      alignItems: 'center',
-      justifyContent: 'center',
-      backgroundColor: Colors.accentDim,
-      borderWidth: 1,
-      borderColor: `${Colors.accent}40`,
-    },
-    actionLabel: {
-      fontSize: 14,
-      fontWeight: '600',
-      color: Colors.textPrimary,
-    },
-    demoBtn: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: Spacing.xs,
-      paddingVertical: Spacing.sm,
-    },
-    demoBtnText: {
-      fontSize: 13,
-      color: Colors.accent,
-      fontWeight: '500',
-    },
-  });
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
-      {/* Scan Frame Illustration */}
       <View style={styles.scanArea}>
         <ScanOverlay isScanning={isProcessing} />
 
@@ -255,7 +121,6 @@ export default function ScanScreen({ navigation }) {
         )}
       </View>
 
-      {/* Actions */}
       {!isProcessing && (
         <Animated.View
           entering={FadeInDown.delay(200).springify()}
@@ -289,3 +154,102 @@ export default function ScanScreen({ navigation }) {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: Colors.bg,
+  },
+  scanArea: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#050505',
+    position: 'relative',
+  },
+  scanHint: {
+    alignItems: 'center',
+    gap: Spacing.md,
+    zIndex: 20,
+  },
+  scanHintText: {
+    fontSize: 15,
+    color: Colors.textSecondary,
+  },
+  progressContainer: {
+    alignItems: 'center',
+    gap: Spacing.md,
+    width: '60%',
+    zIndex: 20,
+  },
+  progressBar: {
+    width: '100%',
+    height: 4,
+    backgroundColor: Colors.border,
+    borderRadius: 2,
+    overflow: 'hidden',
+  },
+  progressFill: {
+    height: '100%',
+    backgroundColor: Colors.accent,
+    borderRadius: 2,
+  },
+  progressText: {
+    fontSize: 14,
+    color: Colors.textSecondary,
+  },
+  actions: {
+    backgroundColor: Colors.bg,
+    padding: Spacing.xl,
+    gap: Spacing.lg,
+    borderTopWidth: 1,
+    borderTopColor: Colors.border,
+  },
+  primaryActions: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+  },
+  actionBtn: {
+    alignItems: 'center',
+    gap: Spacing.sm,
+  },
+  actionIcon: {
+    width: 64,
+    height: 64,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: Colors.accent,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  actionIconSecondary: {
+    width: 64,
+    height: 64,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: Colors.accentDim,
+    borderWidth: 1,
+    borderColor: `${Colors.accent}40`,
+  },
+  actionLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: Colors.textPrimary,
+  },
+  demoBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Spacing.xs,
+    paddingVertical: Spacing.sm,
+  },
+  demoBtnText: {
+    fontSize: 13,
+    color: Colors.accent,
+    fontWeight: '500',
+  },
+});

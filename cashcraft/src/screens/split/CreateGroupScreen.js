@@ -10,7 +10,7 @@ import {
   Platform,
 } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
-import { Feather } from '@expo/vector-icons';
+import Feather from 'react-native-vector-icons/Feather';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Spacing, Radius } from '../../constants/theme';
 import { useGroupStore } from '../../context/store';

@@ -7,19 +7,17 @@ import {
   SectionList,
 } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
-import { Spacing, Radius, CATEGORIES } from '../../constants/theme';
+import { Colors, Spacing, Radius, CATEGORIES } from '../../constants/theme';
 import { useExpenseStore } from '../../context/store';
 import { groupExpensesByDate, formatCurrency } from '../../utils/formatters';
 import CategoryChip from '../../components/CategoryChip';
 import ExpenseItem from '../../components/ExpenseItem';
 import GlassCard from '../../components/GlassCard';
-import { Feather } from '@expo/vector-icons';
-import { useColors } from '../../hooks/useColors';
+import Feather from 'react-native-vector-icons/Feather';
 
 const ALL_CAT = { id: 'all', label: 'All', icon: 'grid', color: '#8E8E93' };
 
 export default function ExpenseHistoryScreen() {
-  const Colors = useColors();
   const expenses = useExpenseStore((s) => s.expenses);
   const deleteExpense = useExpenseStore((s) => s.deleteExpense);
   const [activeCategory, setActiveCategory] = useState('all');
@@ -34,60 +32,6 @@ export default function ExpenseHistoryScreen() {
   const sections = Object.entries(grouped).map(([title, data]) => ({ title, data }));
 
   const totalFiltered = filtered.reduce((s, e) => s + e.amount, 0);
-
-  const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: Colors.bg,
-    },
-    filterScroll: {
-      paddingHorizontal: Spacing.base,
-      paddingTop: Spacing.base,
-      paddingBottom: Spacing.sm,
-    },
-    summary: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      paddingHorizontal: Spacing.base,
-      paddingVertical: Spacing.sm,
-      borderBottomWidth: 1,
-      borderBottomColor: Colors.border,
-    },
-    summaryText: {
-      fontSize: 13,
-      color: Colors.textTertiary,
-    },
-    summaryAmount: {
-      fontSize: 14,
-      fontWeight: '700',
-      color: Colors.textPrimary,
-    },
-    list: {
-      paddingHorizontal: Spacing.base,
-      paddingTop: Spacing.md,
-      paddingBottom: 100,
-    },
-    dateHeader: {
-      fontSize: 12,
-      fontWeight: '700',
-      color: Colors.textTertiary,
-      letterSpacing: 0.5,
-      textTransform: 'uppercase',
-      marginBottom: Spacing.sm,
-      marginTop: Spacing.md,
-    },
-    empty: {
-      flex: 1,
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: Spacing.md,
-    },
-    emptyText: {
-      fontSize: 16,
-      color: Colors.textSecondary,
-    },
-  });
 
   return (
     <View style={styles.container}>
@@ -147,3 +91,57 @@ export default function ExpenseHistoryScreen() {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: Colors.bg,
+  },
+  filterScroll: {
+    paddingHorizontal: Spacing.base,
+    paddingTop: Spacing.base,
+    paddingBottom: Spacing.sm,
+  },
+  summary: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: Spacing.base,
+    paddingVertical: Spacing.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border,
+  },
+  summaryText: {
+    fontSize: 13,
+    color: Colors.textTertiary,
+  },
+  summaryAmount: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: Colors.textPrimary,
+  },
+  list: {
+    paddingHorizontal: Spacing.base,
+    paddingTop: Spacing.md,
+    paddingBottom: 100,
+  },
+  dateHeader: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: Colors.textTertiary,
+    letterSpacing: 0.5,
+    textTransform: 'uppercase',
+    marginBottom: Spacing.sm,
+    marginTop: Spacing.md,
+  },
+  empty: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Spacing.md,
+  },
+  emptyText: {
+    fontSize: 16,
+    color: Colors.textSecondary,
+  },
+});
